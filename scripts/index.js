@@ -31,7 +31,7 @@ function jump() {
 
         let interval = setInterval(() => {
             if (velocity.y + jumpForceIncrease < jumpForce) {
-                if (velocity.y + jumpForceIncrease < jumpForce*.6) {
+                if (velocity.y + jumpForceIncrease < jumpForce*.7) {
                     velocity.y += jumpForceIncrease;
                     playerBody.body.setLinearVelocity(velocity);
                     console.log(playerBody.body.getLinearVelocity());
