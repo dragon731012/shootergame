@@ -98,7 +98,7 @@ const createScene = async () => {
 
     gun = await add3d("/assets/machinegun.glb");
     gun.parent = camera;
-    currentgunpos = -0.4;
+    currentgunpos = -0.42;
     gun.position = new BABYLON.Vector3(1.75, -0.42, 0.5);
     gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
 
@@ -228,9 +228,9 @@ const createScene = async () => {
         camera.position.copyFrom(player.position);
         camera.setTarget(player.position);
 
-        if (keyMap["w"] && !keyMap["s"] && Math.abs(velocity.y) < 0.1) {
+        if (keyMap["w"] && !keyMap["s"] && Math.abs(playerBody.body.getLinearVelocity().y) < 0.1) {
             gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
-            currentgunpos = -0.4;
+            currentgunpos = -0.42;
             gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
 
         }
