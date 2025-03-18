@@ -1,1 +1,191 @@
-<h1>hello world</h1>
+<canvas id="renderCanvas"></canvas>
+<script src="/scripts/index.js" defer></script>
+<script src="/scripts/functions.js"></script>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <!-- Babylon.js -->
+  <script src="babylon/Assets.js"></script>
+<script src="babylon/recast.js"></script>
+<script src="babylon/ammo.js"></script>
+<script src="babylon/HavokPhysics_umd.js"></script>
+<script src="babylon/cannon.js"></script>
+<script src="babylon/Oimo.js"></script>
+<script src="babylon/earcut.min.js"></script>
+<script src="babylon/babylon.js"></script>
+<script src="babylon/babylonjs.materials.min.js"></script>
+<script src="babylon/babylonjs.proceduralTextures.min.js"></script>
+<script src="babylon/babylonjs.postProcess.min.js"></script>
+<script src="babylon/babylonjs.loaders.js"></script>
+<script src="babylon/babylonjs.serializers.min.js"></script>
+<script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+<script src="babylon/babylon.inspector.bundle.js"></script>
+
+<img src="assets/crosshair.png" id="crosshair"></img>
+
+<style>
+    #crosshair{
+        width:5vw;
+        position: absolute;
+        left:calc(50vw - (5vw / 2));
+        top:calc(50vh - (5vw / 2));
+        pointer-events: none;
+    }
+
+  canvas{
+    width:100vw;
+    height:100vh;
+    position:absolute;
+    left:0px;
+    top:0px;border:0px;
+  } 
+  body{
+    overflow:hidden;
+  }
+</style>
+<div id="hptxt"></div>
+  <div id="hpcont"><div id="hp"></div></div>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+  #death{
+    width:100%;
+    display: none;
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    background: white;
+    top:0px;
+  }
+
+  ::-webkit-scrollbar {
+      width: 10px;
+      color: white;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+      background: #cccccc;
+      color: #cccccc;
+  }
+
+  ::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      color: white;
+      background: white;
+  }
+  
+  ::placeholder{
+    color:white;
+  }
+  
+  ::-webkit-scrollbar-track {
+    color:transparent;
+  }
+
+  #messageinput::placeholder{
+    color:white;
+  }
+
+  #messagecont{
+    width: 15vw;
+    position: absolute;
+    height: 25vh;
+    bottom: calc(2vw + 4vh + 7vh);
+    background: transparent;
+    left: 2vw;
+  }
+
+  .message{
+    width:100%;
+    color:white;
+  }
+
+  #messages{
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 87%;
+  }
+
+  #messageinput{
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    color: white;
+    border: 2px solid white;
+    height: 13%;
+    border-radius: 5px;
+    background: transparent;
+    outline: none;
+  }
+
+  #hpcont{
+    width: 20vw;
+    height: 3vh;
+    position: absolute;
+    left: 2vw;
+    bottom: 2vw;
+    pointer-events: none;
+  }
+  #hptxt{
+    position: absolute;
+    bottom: calc(2vw + 4vh);
+    color: green;
+    font-size: 4vh;
+    left: 2vw;
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+  }
+  #hp{
+    width: 100%;
+    height: 100%;
+    background:#25cc2d;
+    border-radius: 1vh;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    pointer-events: none;
+    transition: 0.2s all;
+  }
+  canvas{
+    width:100vw;
+    height:100vh;
+    position:absolute;
+    left:0px;
+    top:0px;border:0px;
+  } 
+  body{
+    overflow:hidden;
+  }
+</style>
+<script>
+  var hp = 100;
+  var running=true;
+  var hpcolor="#25cc2d";
+
+  setInterval(()=>{
+    if (hp<=0){
+      running=false;
+      hp=0;
+    }
+    if (hp>100){
+      hp=100;
+    }
+    if (hp>75){
+      if (hp<0){
+        hp=0;
+      }
+      hpcolor="#25cc2d";
+    } else if (hp>40){
+      hpcolor="#e0d33d";
+    } else {
+      hpcolor="#c90000";
+    }
+    document.getElementById("hp").style.width = hp + "%";
+    document.getElementById("hp").style.background=hpcolor;
+    document.getElementById("hptxt").innerHTML = Math.round(hp);
+    document.getElementById("hptxt").style.color=hpcolor;
+  }, 15); 
+</script>
