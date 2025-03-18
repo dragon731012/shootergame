@@ -16,6 +16,7 @@ const shootForce = 1;
 const enemySpawnInterval = 2000;
 const jumpForce = 80;
 const jumpForceIncrease = 4;
+let gunBobbingOffset = 0;
 
 canvas.addEventListener('click', () => {
     canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
@@ -225,6 +226,13 @@ const createScene = async () => {
         // Sync camera position with player position
         camera.position.copyFrom(player.position);
         camera.setTarget(player.position);
+
+        if (forwardMovement !== 0) {
+            gunBobbingOffset = Math.sin(Date.now() * 0.05) * 0.1;  
+            gun.position.y = -0.42 + gunBobbingOffset;  
+        } else {
+            gun.position.y = -0.42;
+        }    
     });
 
 
