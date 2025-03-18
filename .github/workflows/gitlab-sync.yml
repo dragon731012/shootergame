@@ -23,6 +23,6 @@ jobs:
         git remote set-url gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git || git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git
         git fetch gitlab
 
-    - name: Force push to GitLab
+    - name: Force push to GitLab (to a different branch)
       run: |
-        git push gitlab e --force  # Force push to GitLab
+        git push gitlab main:e --force  # Force push local main to GitLab dev branch
