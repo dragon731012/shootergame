@@ -13,6 +13,7 @@ let isShooting = false;
 let canJump = true;
 const moveSpeed = 10;
 const shootForce = 1;
+var currentgunpos = -0.42;
 const enemySpawnInterval = 2000;
 const jumpForce = 80;
 const jumpForceIncrease = 4;
@@ -227,12 +228,12 @@ const createScene = async () => {
         camera.position.copyFrom(player.position);
         camera.setTarget(player.position);
 
-        if (forwardMovement !== 0) {
-            gunBobbingOffset = Math.sin(Date.now() * 0.05) * 0.1;  
-            gun.position.y = -0.42 + gunBobbingOffset;  
-        } else {
-            gun.position.y = -0.42;
-        }    
+        if (keyMap["w"] && !keyMap["s"] && Math.abs(velocity.y) < 0.1) {
+            gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+            currentgunpos = -0.4;
+            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+
+        }
     });
 
 
