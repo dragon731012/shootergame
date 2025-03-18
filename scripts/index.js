@@ -197,8 +197,8 @@ const createScene = async () => {
         const right = BABYLON.Vector3.Cross(BABYLON.Vector3.Up(), forward).normalize();
 
         // Zero out vertical movement
-        forward.y = 0;
-        right.y = 0;
+        forward.y = playerBody.body.getLinearVelocity().y;
+        right.y = playerBody.body.getLinearVelocity().y;
 
         if (forwardMovement>0 && forwardMovement<moveSpeed){
             forwardMovement=moveSpeed;
