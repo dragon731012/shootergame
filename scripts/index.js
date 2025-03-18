@@ -258,11 +258,9 @@ const createScene = async () => {
             gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
         }
     
-        let velocity = playerBody.body.getLinearVelocity();
+        let velocityY = playerBody.body.getLinearVelocity().y;
 
-        if (Math.abs(playerBody.body.getLinearVelocity().y) > 0.1) {
-            gun.position.y += 0.1; 
-        }
+        if (gun && Math.abs(playerBody.body.getLinearVelocity().y) < 0.1) gun.position.y += velocityY / 18;
     });
 
 
