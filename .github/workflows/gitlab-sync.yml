@@ -15,9 +15,9 @@ jobs:
 
     - name: Push to GitLab
       run: |
-        git config user.name "Your GitHub Username"
-        git config user.email "Your GitHub Email"
-        git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/yourusername/yourrepository.git
+        git config user.name "dragon731012"
+        git config user.email "dragon73101@gmail.com"
+        git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git
         git push gitlab main  # or the branch you want to sync
       env:
         GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
