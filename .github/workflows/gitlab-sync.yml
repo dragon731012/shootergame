@@ -20,11 +20,9 @@ jobs:
 
       - name: Add GitLab remote
         run: |
-          git remote add gitlab https://gitlab.com/potato12341/code.git
+          git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git
           git fetch gitlab
 
       - name: Push changes to GitLab
-        env:
-          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
         run: |
           git push https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git HEAD:main
