@@ -13,11 +13,20 @@ jobs:
     - name: Checkout GitHub repository
       uses: actions/checkout@v2
 
-    - name: Push to GitLab
+    - name: Set up Git
       run: |
         git config user.name "dragon731012"
         git config user.email "dragon73101@gmail.com"
+
+    - name: Add GitLab remote
+      run: |
         git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git
+        git fetch gitlab
+
+    - name: Pull from GitLab (to ensure local branch is up-to-date)
+      run: |
+        git pull gitlab main  # or the branch you want to sync
+
+    - name: Push to GitLab
+      run: |
         git push gitlab main  # or the branch you want to sync
-      env:
-        GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
