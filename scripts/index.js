@@ -36,7 +36,7 @@ function jump() {
                     playerBody.body.setLinearVelocity(velocity);
                     console.log(playerBody.body.getLinearVelocity());
                 } else {
-                    velocity.y += jumpForceIncrease*.1;
+                    velocity.y += jumpForceIncrease*.01;
                     playerBody.body.setLinearVelocity(velocity);
                     console.log(playerBody.body.getLinearVelocity());
                 }
