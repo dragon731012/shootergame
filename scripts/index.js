@@ -242,7 +242,7 @@ const createScene = async () => {
 
         if (keyMap["a"] && !keyMap["s"] && !keyMap["d"]) {
             gun.rotation = new BABYLON.Vector3(-0.1, Math.PI / 2, 0);
-            currentgunpos = -0.6;
+            currentgunpos = -0.3;
             gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
