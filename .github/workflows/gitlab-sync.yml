@@ -25,4 +25,4 @@ jobs:
 
     - name: Force push to GitLab
       run: |
-        git push gitlab main --force  # Force push to GitLab
+        git push gitlab e --force  # Force push to GitLab
