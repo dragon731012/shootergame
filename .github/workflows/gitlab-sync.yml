@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout GitHub repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # Fetch the full history to avoid shallow clone issues
 
     - name: Set up Git
       run: |
@@ -25,4 +27,4 @@ jobs:
 
     - name: Force push to GitLab (to a different branch)
       run: |
-        git push gitlab main:e --force  # Force push local main to GitLab dev branch
+        git push gitlab main:dev --force  # Force push local main to GitLab dev branch
