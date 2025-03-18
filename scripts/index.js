@@ -44,7 +44,7 @@ function jump() {
 const createScene = async () => {
     scene = new BABYLON.Scene(engine);
 
-    const gravityVector = new BABYLON.Vector3(0, -9.8, 0);
+    const gravityVector = new BABYLON.Vector3(0, -20, 0);
     const havokInstance = await HavokPhysics();
     const physicsPlugin = new BABYLON.HavokPlugin(true, havokInstance);
     scene.enablePhysics(gravityVector, physicsPlugin);
