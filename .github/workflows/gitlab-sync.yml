@@ -23,9 +23,9 @@ jobs:
         git remote set-url gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git || git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git
         git fetch gitlab
 
-    - name: Pull from GitLab (to ensure local branch is up-to-date)
+    - name: Pull from GitLab (rebase to avoid merge conflicts)
       run: |
-        git pull gitlab main  # or the branch you want to sync
+        git pull --rebase gitlab main  # or the branch you want to sync
 
     - name: Push to GitLab
       run: |
