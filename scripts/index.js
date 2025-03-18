@@ -14,7 +14,7 @@ let canJump = true;
 const moveSpeed = 10;
 const shootForce = 1;
 const enemySpawnInterval = 2000;
-const jumpForce = 40;
+const jumpForce = 80;
 const jumpForceIncrease = 4;
 
 canvas.addEventListener('click', () => {
