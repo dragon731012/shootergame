@@ -25,35 +25,26 @@ canvas.addEventListener('click', () => {
 function jump() {
     let velocity = playerBody.body.getLinearVelocity();
 
-    // Check if the player is grounded (velocity.y should be 0 or near 0)
+    // Check if the player is grounded (velocity.y should be near 0)
     if (Math.abs(velocity.y) < 0.1 && canJump) {
         canJump = false; // Disable jumping until the player lands
 
-        let interval = setInterval(() => {
-            if (velocity.y + jumpForceIncrease < jumpForce) {
-                if (velocity.y + jumpForceIncrease < jumpForce*.7) {
-                    velocity.y += jumpForceIncrease;
-                    playerBody.body.setLinearVelocity(velocity);
-                    console.log(playerBody.body.getLinearVelocity());
-                } else {
-                    velocity.y += jumpForceIncrease*.01;
-                    playerBody.body.setLinearVelocity(velocity);
-                    console.log(playerBody.body.getLinearVelocity());
-                }
-            } else {
-                clearInterval(interval);
-                canJump=true;
-            }
-        }, 10);
+        // Apply an upward impulse to simulate the jump
+        const jumpImpulse = new BABYLON.Vector3(0, jumpForce, 0);
+        playerBody.body.applyImpulse(jumpImpulse, player.position);
+        
+        // You can add a small delay or event when landing to reset `canJump` to true
+        setTimeout(() => canJump = true, 500);  // Assuming the player lands in about half a second
     }
 }
+
 
 
 
 const createScene = async () => {
     scene = new BABYLON.Scene(engine);
 
-    const gravityVector = new BABYLON.Vector3(0, -1500, 0);
+    const gravityVector = new BABYLON.Vector3(0, -9.8, 0);
     const havokInstance = await HavokPhysics();
     const physicsPlugin = new BABYLON.HavokPlugin(true, havokInstance);
     scene.enablePhysics(gravityVector, physicsPlugin);
