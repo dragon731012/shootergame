@@ -232,7 +232,24 @@ const createScene = async () => {
             gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
             currentgunpos = -0.42;
             gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+        }
 
+        if (keyMap["s"] && !keyMap["w"] && Math.abs(playerBody.body.getLinearVelocity().y) < 0.1) {
+            gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+            currentgunpos = -0.4;
+            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+        }
+
+        if (keyMap["a"] && !keyMap["s"] && !keyMap["d"]) {
+            gun.rotation = new BABYLON.Vector3(-0.1, Math.PI / 2, 0);
+            currentgunpos = -0.2;
+            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+        }
+
+        if (keyMap["d"] && !keyMap["s"] && !keyMap["a"]) {
+            gun.rotation = new BABYLON.Vector3(0.1, Math.PI / 2, 0);
+            currentgunpos = -0.6;
+            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
     });
 
