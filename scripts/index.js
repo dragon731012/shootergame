@@ -212,6 +212,8 @@ const createScene = async () => {
         // Combine forward and right movement
         const movement = forward.scale(forwardMovement).add(right.scale(rightMovement));
 
+        movement.y = playerBody.body.getLinearVelocity().y;
+
         // Apply the horizontal movement as linear velocity to the player's physics body        
         playerBody.body.setLinearVelocity(movement);
 
