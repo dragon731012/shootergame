@@ -116,7 +116,7 @@ const createScene = async () => {
     playerBody=new BABYLON.PhysicsAggregate(
         player,
         BABYLON.PhysicsShapeType.BOX,
-        { mass: 1 },
+        { mass: 10 },
         scene
     );
 
