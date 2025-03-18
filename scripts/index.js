@@ -220,6 +220,7 @@ const createScene = async () => {
         playerBody.body.setLinearVelocity(movement);
 
         if (keyMap[" "] && canJump) {
+            if (gun) gun.position.y = currentgunpos;
             jump();
             console.log("jumping");
         }
@@ -256,6 +257,8 @@ const createScene = async () => {
             gun.position.y = -0.42;
             gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
         }
+
+        if (gun && Math.abs(playerBody.body.getLinearVelocity().y) > 0.1) gun.position.y += velocityY / 18;
     });
 
 
