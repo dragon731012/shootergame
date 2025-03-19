@@ -136,11 +136,16 @@ const createScene = async () => {
     
         // Get gun tip position in world space
         let gunTipPosition = showbullet.getAbsolutePosition();
+        bullet.position.copyFrom(gunTipPosition); // Place the bullet exactly at the gun tip
     
+
+        let gunDirection = gun.position.subtract(gunTipPosition).normalize();
+        let offset = gunDirection.scale(0.1); // Adjust 0.1 as needed
+        bullet.position.addInPlace(offset);
+        
+
         // Get the gun's forward direction
         const bulletDirection = camera.getForwardRay().direction.clone().normalize();
-        let spawnOffset = bulletDirection.scale(-1.5); 
-        bullet.position = gunTipPosition.add(spawnOffset);
     
         // Immediately detach the bullet from the gun to avoid weird rotations
         bullet.setParent(null);
