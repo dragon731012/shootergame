@@ -1,40 +1,30 @@
-// Assuming socket.io client is available
-const socket = io('https://server.addmask.com');
+// client.js
 
-// Socket Event Handlers
+// Connect to your server (update the URL as needed)
+const socket = io('https://server.addmask.com'); // Replace with your actual server domain
 
-// Send player movement updates to server
-function sendMovementData(position) {
-    socket.emit('player-movement', { position });
-}
-
-// Listen for player updates from the server
-socket.on('player-updated', (data) => {
-    // Handle server updates to player position or other data
-    // For example, update the position of other players
-    console.log('Player updated:', data);
+// Once connected, log the socket id
+socket.on('connect', () => {
+    console.log('Connected to server with ID:', socket.id);
 });
 
-// Send shooting event to server
-document.addEventListener("click", async () => {
-    socket.emit('shoot', { position: gun.position, direction: camera.getForwardRay().direction });
+// Listen for updates from the server (e.g., other players moving)
+// (Your game code can add its own listeners or you can attach callbacks here)
+socket.on('playerMoved', (data) => {
+    // For example, you might call a function in your game code:
+    // window.handleOtherPlayerMovement(data);
+    console.log(`Player ${data.id} moved:`, data.movementData);
 });
 
-// Handle gun animations and updates
-function updateGunPosition() {
-    if (keyMap["w"] && !keyMap["s"] && canJump) {
-        gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, new BABYLON.Vector3(0, Math.PI / 2, 0), 0.1);
+// Expose a network API that your game code can use
+window.network = {
+    sendPlayerMovement: function(position) {
+        // Send the player's current position to the server.
+        // Here, we wrap the position inside an object.
+        socket.emit('player-movement', { position: { x: position.x, y: position.y, z: position.z } });
+    },
+    sendShootEvent: function(gunPosition, direction) {
+        // Send a shoot event to the server with the gun position and shooting direction.
+        socket.emit('shoot', { position: gunPosition, direction: { x: direction.x, y: direction.y, z: direction.z } });
     }
-    if (keyMap["s"] && !keyMap["w"] && canJump) {
-        gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, new BABYLON.Vector3(0, Math.PI / 2, 0), 0.1);
-    }
-    // Add more conditions for other directions and gun adjustments
-}
-
-// Regularly update the server with the player’s position
-function updatePlayerPosition() {
-    const playerPosition = player.position;
-    sendMovementData(playerPosition);
-}
-
-setInterval(updatePlayerPosition, 100); // Send position every 100ms
+};
