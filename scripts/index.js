@@ -140,8 +140,6 @@ const createScene = async () => {
     
 
         let gunDirection = gun.position.subtract(gunTipPosition).normalize();
-        let offset = gunDirection.scale(1); // Adjust 0.1 as needed
-        bullet.position.addInPlace(offset);
         
 
         // Get the gun's forward direction
