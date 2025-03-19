@@ -21,7 +21,7 @@ window.network = {
     sendPlayerMovement: function(position) {
         // Send the player's current position to the server.
         // Here, we wrap the position inside an object.
-        socket.emit('player-movement', { position: { x: position.x, y: position.y, z: position.z } });
+        socket.emit('player-movement', { position: { x: position.x, y: position.y, z: position.z }, rotation: { x: rotation.x, y: rotation.y, z: rotation.z } });
     },
     sendShootEvent: function(gunPosition, direction) {
         // Send a shoot event to the server with the gun position and shooting direction.
