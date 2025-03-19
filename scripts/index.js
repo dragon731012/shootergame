@@ -259,10 +259,13 @@ const createScene = async () => {
         }
     
         let velocityY = playerBody.body.getLinearVelocity().y;
+        let playerY = player.position.y;
 
-        if (velocityY > 0.01 || velocityY<-0.01) {
-            gun.position.y += velocityY/5000;
-        }        
+        // Ensure gun's Y position follows the player smoothly
+        const targetGunY = currentgunpos + (playerY - player.position.y) / 5;
+        
+        // Smooth the movement with a factor for smoothness
+        gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetGunY, 0.1);        
     });
 
 
