@@ -275,6 +275,8 @@ const createScene = async () => {
 
         if ((keyMap['d'] || keyMap["s"] || keyMap["a"] || keyMap["w"]) || !canJump){
             document.getElementById("crosshair").style.transform="scale(1)";
+        } else {
+            document.getElementById("crosshair").style.transform="scale(0.6)";
         }
 
         if (!keyMap["w"] && !keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump){
