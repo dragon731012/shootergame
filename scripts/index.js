@@ -141,14 +141,17 @@ const createScene = async () => {
         // Get the forward direction of the camera (which is the firing direction)
         const bulletDirection = camera.getForwardRay().direction.clone().normalize();
     
-        // Ensure the bullet faces forward along the firing direction
+        // Adjust the bullet's rotation to align correctly
         bullet.lookAt(gunTipPosition.add(bulletDirection));
+    
+        // Correct orientation if the bullet is facing sideways
+        bullet.rotate(BABYLON.Axis.Y, Math.PI / 2, BABYLON.Space.LOCAL); // Adjust rotation if needed
     
         // Detach bullet from gun so it moves independently
         bullet.setParent(null);
     
         // Prevent unwanted rotation
-        bullet.rotationQuaternion = null; // Remove any previous quaternion-based rotations
+        bullet.rotationQuaternion = null;
     
         // Add physics and lock rotation
         const bulletPhysics = new BABYLON.PhysicsAggregate(
@@ -166,10 +169,6 @@ const createScene = async () => {
     
         bullet.isVisible = true;
     });
-    
-    
-    
-    
     
 
     const spawnEnemy = () => {
