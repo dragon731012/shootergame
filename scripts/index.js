@@ -12,8 +12,7 @@ let keyMap = {};
 let isShooting = false;
 let canJump = true;
 const moveSpeed = 10;
-var shootForce = 1000;
-var bulletmass = 1;
+const shootForce = 1;
 var currentgunpos = -0.42;
 const enemySpawnInterval = 2000;
 const jumpForce = 80;
@@ -157,7 +156,7 @@ const createScene = async () => {
         const bulletPhysics = new BABYLON.PhysicsAggregate(
             bullet,
             BABYLON.PhysicsShapeType.BOX,
-            { mass: bulletmass },
+            { mass: 0.001 },
             scene
         );
     
