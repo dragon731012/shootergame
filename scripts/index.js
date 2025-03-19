@@ -273,6 +273,10 @@ const createScene = async () => {
             gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetgunpos, 0.1);
         }
 
+        if ((keyMap['d'] || keyMap["s"] || keyMap["a"] || keyMap["w"]) || !canJump){
+            document.getElementById("crosshair").style.transform="scale(1)";
+        }
+
         if (!keyMap["w"] && !keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump){
             let targetgunpos = -0.42;
             gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetgunpos, 0.1);
