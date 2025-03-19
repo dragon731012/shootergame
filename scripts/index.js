@@ -17,7 +17,7 @@ var currentgunpos = -0.42;
 const enemySpawnInterval = 2000;
 const jumpForce = 80;
 const jumpForceIncrease = 4;
-const gunBob = 0;
+const gunBob = 40;
 
 canvas.addEventListener('click', () => {
     canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
