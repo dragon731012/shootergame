@@ -134,8 +134,9 @@ const createScene = async () => {
         hl.addMesh(bullet, BABYLON.Color3.Yellow());
 
         bullet.parent=gun;
-        bullet.position=new BABYLON.Vector3(-0.3, 0.14, 1.65);
-        bullet.rotation = new BABYLON.Vector3(0, 0, 0);
+        let gunTipPosition = showbullet.getAbsolutePosition();
+        bullet.position = gunTipPosition;
+        bullet.rotationQuaternion = null;
         bullet.material = bulletMaterial;
     
         const crosshairRay = camera.getForwardRay();
