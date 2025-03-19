@@ -262,7 +262,7 @@ const createScene = async () => {
             if (playerBody.body.getLinearVelocity().y>0){
                 gun.position.y += playerBody.body.getLinearVelocity().y / (25*gunBob);
             } else {
-                gun.position.y = currentgunpos + playerBody.body.getLinearVelocity().y // gunBob;
+                gun.position.y = currentgunpos + playerBody.body.getLinearVelocity().y / gunBob;
             }
         }
     });
