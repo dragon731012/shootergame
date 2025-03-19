@@ -18,7 +18,7 @@ socket.on('playerMoved', (data) => {
 
 // Expose a network API that your game code can use
 window.network = {
-    sendPlayerMovement: function(position) {
+    sendPlayerMovement: function(position,rotation) {
         // Send the player's current position to the server.
         // Here, we wrap the position inside an object.
         socket.emit('player-movement', { position: { x: position.x, y: position.y, z: position.z }, rotation: { x: rotation.x, y: rotation.y, z: rotation.z } });
