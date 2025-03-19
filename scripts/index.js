@@ -230,33 +230,35 @@ const createScene = async () => {
         camera.setTarget(player.position);
 
         if (keyMap["w"] && !keyMap["s"] && canJump) {
-            gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+            const targetRotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+            gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1); // Smooth rotation
             currentgunpos = -0.42;
-            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
-
+        
         if (keyMap["s"] && !keyMap["w"] && canJump) {
-            gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+            const targetRotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+            gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1); // Smooth rotation
             currentgunpos = -0.4;
-            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
-
+        
         if (keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump) {
-            gun.rotation = new BABYLON.Vector3(-0.1, Math.PI / 2, 0);
+            const targetRotation = new BABYLON.Vector3(-0.1, Math.PI / 2, 0);
+            gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1); // Smooth rotation
             currentgunpos = -0.3;
-            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
-
+        
         if (keyMap["d"] && !keyMap["s"] && !keyMap["a"] && canJump) {
-            gun.rotation = new BABYLON.Vector3(0.1, Math.PI / 2, 0);
+            const targetRotation = new BABYLON.Vector3(0.1, Math.PI / 2, 0);
+            gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1); // Smooth rotation
             currentgunpos = -0.6;
-            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
-
-        if (!keyMap["w"] && !keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump){
+        
+        if (!keyMap["w"] && !keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump) {
+            const targetRotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+            gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1); // Smooth rotation
             gun.position.y = -0.42;
-            gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
         }
+        
     
         if (gun && !canJump) {
             let vY = playerBody.body.getLinearVelocity().y;
