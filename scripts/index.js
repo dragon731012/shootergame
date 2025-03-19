@@ -258,13 +258,18 @@ const createScene = async () => {
             gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
         }
     
-        if (gun && !canJump){
-            if (playerBody.body.getLinearVelocity().y>0){
-                gun.position.y += playerBody.body.getLinearVelocity().y / (25*gunBob);
+        if (gun && !canJump) {
+            let vY = playerBody.body.getLinearVelocity().y;
+            if (vY > 0) {
+                gun.position.y += vY / (25 * gunBob);
             } else {
-                gun.position.y = currentgunpos + playerBody.body.getLinearVelocity().y / gunBob;
+                // Compute target position based on the falling velocity
+                let targetY = currentgunpos + vY / gunBob;
+                // Smoothly interpolate toward the target
+                gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetY, 0.1);
             }
         }
+        
     });
 
 
