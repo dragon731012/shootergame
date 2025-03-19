@@ -1,4 +1,4 @@
-name: Sync to GitLab
+vname: Sync to GitLab
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
 
     - name: Add or update GitLab remote
       run: |
-        git remote set-url gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git || git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/code.git
+        git remote set-url gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/codeserver.git || git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/potato12341/codeserver.git
         git fetch gitlab
 
     - name: Force push to GitLab main
