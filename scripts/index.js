@@ -266,7 +266,7 @@ const createScene = async () => {
                 // Compute target position based on the falling velocity
                 let targetY = currentgunpos + vY / gunBob;
                 // Smoothly interpolate toward the target
-                gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetY, 0.01);
+                gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetY, 0.1);
             }
         }
         
