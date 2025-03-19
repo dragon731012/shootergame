@@ -228,31 +228,31 @@ const createScene = async () => {
         camera.position.copyFrom(player.position);
         camera.setTarget(player.position);
 
-        if (keyMap["w"] && !keyMap["s"] && Math.abs(playerBody.body.getLinearVelocity().y) < 0.1) {
+        if (keyMap["w"] && !keyMap["s"] && canJump) {
             gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
             currentgunpos = -0.42;
             gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
-        if (keyMap["s"] && !keyMap["w"] && Math.abs(playerBody.body.getLinearVelocity().y) < 0.1) {
+        if (keyMap["s"] && !keyMap["w"] && canJump) {
             gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
             currentgunpos = -0.4;
             gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
-        if (keyMap["a"] && !keyMap["s"] && !keyMap["d"]) {
+        if (keyMap["a"] && !keyMap["s"] && !keyMap["d"]) && canJump {
             gun.rotation = new BABYLON.Vector3(-0.1, Math.PI / 2, 0);
             currentgunpos = -0.3;
             gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
-        if (keyMap["d"] && !keyMap["s"] && !keyMap["a"]) {
+        if (keyMap["d"] && !keyMap["s"] && !keyMap["a"] && canJump) {
             gun.rotation = new BABYLON.Vector3(0.1, Math.PI / 2, 0);
             currentgunpos = -0.6;
             gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
-        if (!keyMap["w"] && !keyMap["a"] && !keyMap["s"] && !keyMap["d"]){
+        if (!keyMap["w"] && !keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump){
             gun.position.y = -0.42;
             gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
         }
