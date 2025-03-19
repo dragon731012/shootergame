@@ -259,7 +259,7 @@ const createScene = async () => {
 
         if (keyMap['d'] || keyMap["s"] || keyMap["a"] || keyMap["w"] && canJump){
             let targetgunpos = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
-            gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetGunPosY, 0.1);
+            gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetgunpos, 0.1);
         }
 
         if (!keyMap["w"] && !keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump){
