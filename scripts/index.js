@@ -263,7 +263,8 @@ const createScene = async () => {
         }
 
         if (!keyMap["w"] && !keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump){
-            gun.position.y = -0.42;
+            let targetgunpos = -0.42;
+            gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetgunpos, 0.1);
             let targetRotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
             gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1);
         }
