@@ -260,7 +260,7 @@ const createScene = async () => {
     
         if (gun && !canJump){
             if (playerBody.body.getLinearVelocity().y>0){
-                gun.position.y += playerBody.body.getLinearVelocity().y / gunBob*100;
+                gun.position.y += playerBody.body.getLinearVelocity().y / (gunBob*100);
             } else {
                 gun.position.y = currentgunpos + playerBody.body.getLinearVelocity().y / gunBob;
             }
