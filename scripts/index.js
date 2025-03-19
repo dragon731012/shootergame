@@ -145,8 +145,8 @@ const createScene = async () => {
         bullet.setParent(null);
         
         // Fix the rotation issue by resetting it completely
-        bullet.rotationQuaternion = null;  
-        bullet.rotation = bulletDirection;
+        let forward = camera.getForwardRay().direction;
+        box.lookAt(box.position.add(forward));
     
         // Add physics and prevent rotation
         const bulletPhysics = new BABYLON.PhysicsAggregate(
