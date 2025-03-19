@@ -298,7 +298,7 @@ const createScene = async () => {
             }
         }
         
-        if (window.network && player) {
+        if (window.network && player && player.position && player.rotation) {
             window.network.sendPlayerMovement(player.position,player.rotation);
         }    
     });
