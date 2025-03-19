@@ -136,24 +136,19 @@ const createScene = async () => {
     
         // Get gun tip position in world space
         let gunTipPosition = showbullet.getAbsolutePosition();
-        bullet.position.copyFrom(gunTipPosition);
+        bullet.position.copyFrom(gunTipPosition); // Place the bullet exactly at the gun tip
     
-        // Get the forward direction of the camera (which is the firing direction)
+        // Get the gun's forward direction
         const bulletDirection = camera.getForwardRay().direction.clone().normalize();
     
-        // Adjust the bullet's rotation to align correctly
-        bullet.lookAt(gunTipPosition.add(bulletDirection));
-    
-        // Correct orientation if the bullet is facing sideways
-        bullet.rotate(BABYLON.Axis.Y, Math.PI / 2, BABYLON.Space.LOCAL); // Adjust rotation if needed
-    
-        // Detach bullet from gun so it moves independently
+        // Immediately detach the bullet from the gun to avoid weird rotations
         bullet.setParent(null);
+        
+        // Fix the rotation issue by resetting it completely
+        bullet.rotationQuaternion = null;  
+        bullet.rotation = bulletDirection;
     
-        // Prevent unwanted rotation
-        bullet.rotationQuaternion = null;
-    
-        // Add physics and lock rotation
+        // Add physics and prevent rotation
         const bulletPhysics = new BABYLON.PhysicsAggregate(
             bullet,
             BABYLON.PhysicsShapeType.BOX,
@@ -161,15 +156,14 @@ const createScene = async () => {
             scene
         );
     
-        bulletPhysics.body.setAngularVelocity(BABYLON.Vector3.Zero()); // Prevent spinning
+        bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0)); // Stop spinning
         bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) }); // No rotational inertia
     
         // Apply force forward
         bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
     
         bullet.isVisible = true;
-    });
-    
+    });    
 
     const spawnEnemy = () => {
         const enemy = BABYLON.MeshBuilder.CreateBox("enemy", { size: 1 }, scene);
