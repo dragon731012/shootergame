@@ -17,7 +17,6 @@ var currentgunpos = -0.42;
 const enemySpawnInterval = 2000;
 const jumpForce = 80;
 const jumpForceIncrease = 4;
-let gunBobbingOffset = 0;
 
 canvas.addEventListener('click', () => {
     canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
@@ -258,14 +257,7 @@ const createScene = async () => {
             gun.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
         }
     
-        let velocityY = playerBody.body.getLinearVelocity().y;
-        let playerY = player.position.y;
-
-        // Ensure gun's Y position follows the player smoothly
-        const targetGunY = currentgunpos + (playerY - player.position.y) / 5;
-        
-        // Smooth the movement with a factor for smoothness
-        gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetGunY, 0.1);        
+        if (gun && !canJump) gun.position.y += velocityY / 18;
     });
 
 
