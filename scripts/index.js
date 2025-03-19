@@ -298,6 +298,9 @@ const createScene = async () => {
             }
         }
         
+        if (window.network && player) {
+            window.network.sendPlayerMovement(player.position);
+        }    
     });
 
 
