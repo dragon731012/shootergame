@@ -156,7 +156,7 @@ const createScene = async () => {
         const bulletPhysics = new BABYLON.PhysicsAggregate(
             bullet,
             BABYLON.PhysicsShapeType.BOX,
-            { mass: 0.001 },
+            { mass: 1 },
             scene
         );
     
