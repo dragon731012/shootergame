@@ -125,7 +125,7 @@ const createScene = async () => {
     document.addEventListener("click", () => {
         Explode(showbullet,0.01,0.02);
 
-        var bullet = showbullet.clone();
+        var bullet = await add3d("assets/bullet.glb");
         bullet.isVisible=false;
         bullet.scaling=new BABYLON.Vector3(0.1, 0.1, 0.1);
         const bulletMaterial = new BABYLON.StandardMaterial("bulletMaterial", scene);
