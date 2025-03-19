@@ -136,19 +136,21 @@ const createScene = async () => {
     
         // Get gun tip position in world space
         let gunTipPosition = showbullet.getAbsolutePosition();
-        bullet.position.copyFrom(gunTipPosition); // Place the bullet exactly at the gun tip
+        bullet.position.copyFrom(gunTipPosition);
     
-        // Get the gun's forward direction
+        // Get the forward direction of the camera (which is the firing direction)
         const bulletDirection = camera.getForwardRay().direction.clone().normalize();
     
-        // Immediately detach the bullet from the gun to avoid weird rotations
-        bullet.setParent(null);
-        
-        // Fix the rotation issue by resetting it completely
-        bullet.rotationQuaternion = null;  
-        bullet.rotation = new BABYLON.Vector3(0, 0, 0);
+        // Ensure the bullet faces forward along the firing direction
+        bullet.lookAt(gunTipPosition.add(bulletDirection));
     
-        // Add physics and prevent rotation
+        // Detach bullet from gun so it moves independently
+        bullet.setParent(null);
+    
+        // Prevent unwanted rotation
+        bullet.rotationQuaternion = null; // Remove any previous quaternion-based rotations
+    
+        // Add physics and lock rotation
         const bulletPhysics = new BABYLON.PhysicsAggregate(
             bullet,
             BABYLON.PhysicsShapeType.BOX,
@@ -156,7 +158,7 @@ const createScene = async () => {
             scene
         );
     
-        bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0)); // Stop spinning
+        bulletPhysics.body.setAngularVelocity(BABYLON.Vector3.Zero()); // Prevent spinning
         bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) }); // No rotational inertia
     
         // Apply force forward
@@ -164,6 +166,7 @@ const createScene = async () => {
     
         bullet.isVisible = true;
     });
+    
     
     
     
