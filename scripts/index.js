@@ -122,7 +122,7 @@ const createScene = async () => {
         scene
     );
 
-    document.addEventListener("click", () => {
+    document.addEventListener("click", async () => {
         Explode(showbullet,0.01,0.02);
 
         var bullet = await add3d("assets/bullet.glb");
