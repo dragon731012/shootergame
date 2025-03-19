@@ -123,38 +123,48 @@ const createScene = async () => {
     );
 
     document.addEventListener("click", async () => {
-        Explode(showbullet,0.01,0.02);
-
+        Explode(showbullet, 0.01, 0.02);
+    
         var bullet = await add3d("assets/bullet.glb");
-        bullet.isVisible=false;
-        bullet.scaling=new BABYLON.Vector3(0.1, 0.1, 0.1);
+        bullet.isVisible = false;
+        bullet.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
+    
         const bulletMaterial = new BABYLON.StandardMaterial("bulletMaterial", scene);
         bulletMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
         
         hl.addMesh(bullet, BABYLON.Color3.Yellow());
-
-        bullet.parent=gun;
+    
+        // Get gun tip position in world space
         let gunTipPosition = showbullet.getAbsolutePosition();
-        bullet.position = gunTipPosition;
-        bullet.rotationQuaternion = null;
-        bullet.material = bulletMaterial;
+        bullet.position.copyFrom(gunTipPosition); // Place the bullet exactly at the gun tip
     
-        const crosshairRay = camera.getForwardRay();
-        const crosshairDirection = crosshairRay.direction.clone().normalize();
+        // Get the gun's forward direction
+        const bulletDirection = camera.getForwardRay().direction.clone().normalize();
     
-        const bulletDirection = crosshairDirection;
+        // Immediately detach the bullet from the gun to avoid weird rotations
+        bullet.setParent(null);
+        
+        // Fix the rotation issue by resetting it completely
+        bullet.rotationQuaternion = null;  
+        bullet.rotation = new BABYLON.Vector3(0, 0, 0);
     
+        // Add physics and prevent rotation
         const bulletPhysics = new BABYLON.PhysicsAggregate(
             bullet,
             BABYLON.PhysicsShapeType.BOX,
-            { mass: 0.0001 },
+            { mass: 0.001 },
             scene
         );
+    
+        bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0)); // Stop spinning
+        bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) }); // No rotational inertia
+    
+        // Apply force forward
         bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
-        bullet.parent=null;
-        bullet.isVisible=true;
-
+    
+        bullet.isVisible = true;
     });
+    
     
     
     
