@@ -92,7 +92,6 @@ const createScene = async () => {
 
     player = BABYLON.MeshBuilder.CreateSphere("player", { size: 1 }, scene);
     player.scaling = new BABYLON.Vector3(4, 4, 4);
-    player.rotation=new BABYLON.Vector3(0,0,0);
     player.isVisible=false;
 
     camera.target = player;
@@ -300,7 +299,7 @@ const createScene = async () => {
         }
         
         if (window.network && player) {
-            window.network.sendPlayerMovement(player.position,player.rotation);
+            window.network.sendPlayerMovement(player.position,player.rotationQuaternion);
         }    
     });
 
