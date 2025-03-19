@@ -261,7 +261,7 @@ const createScene = async () => {
         let velocityY = playerBody.body.getLinearVelocity().y;
 
         if (gun && Math.abs(velocityY) > 0.01) {
-            gun.position.y += velocityY / 50;
+            gun.position.y += 0.05;
         }        
     });
 
