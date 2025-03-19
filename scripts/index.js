@@ -233,28 +233,33 @@ const createScene = async () => {
             let targetRotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
             gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1);
             currentgunpos = -0.42;
-            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+            //gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
         if (keyMap["s"] && !keyMap["w"] && canJump) {
             let targetRotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
             gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1);
             currentgunpos = -0.4;
-            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+            //gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
         if (keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump) {
             let targetRotation = new BABYLON.Vector3(-0.1, Math.PI / 2, 0);
             gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1);
             currentgunpos = -0.3;
-            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+            //gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
         if (keyMap["d"] && !keyMap["s"] && !keyMap["a"] && canJump) {
             let targetRotation = new BABYLON.Vector3(0.1, Math.PI / 2, 0);
             gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1);
             currentgunpos = -0.6;
-            gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+            //gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+        }
+
+        if (keyMap['d'] || keyMap["s"] || keyMap["a"] || keyMap["w"] && canJump){
+            let targetgunpos = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
+            gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetGunPosY, 0.1);
         }
 
         if (!keyMap["w"] && !keyMap["a"] && !keyMap["s"] && !keyMap["d"] && canJump){
