@@ -17,6 +17,7 @@ var currentgunpos = -0.42;
 const enemySpawnInterval = 2000;
 const jumpForce = 80;
 const jumpForceIncrease = 4;
+const gunBob = 0;
 
 canvas.addEventListener('click', () => {
     canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
@@ -258,8 +259,11 @@ const createScene = async () => {
         }
     
         if (gun && !canJump){
-            gun.position.y = currentgunpos + playerBody.body.getLinearVelocity().y / 40;
-            console.log(playerBody.body.getLinearVelocity().y / 1000);
+            if (playerBody.body.getLinearVelocity().y>0){
+                gun.position.y += playerBody.body.getLinearVelocity().y / gunBob*100;
+            } else {
+                gun.position.y = currentgunpos + playerBody.body.getLinearVelocity().y / gunBob;
+            }
         }
     });
 
