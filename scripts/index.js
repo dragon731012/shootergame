@@ -258,8 +258,8 @@ const createScene = async () => {
         }
     
         if (gun && !canJump){
-            gun.position.y += playerBody.body.getLinearVelocity().y / 5000;
-            console.log(playerBody.body.getLinearVelocity().y / 5000);
+            gun.position.y += playerBody.body.getLinearVelocity().y / 3000;
+            console.log(playerBody.body.getLinearVelocity().y / 3000);
         }
     });
 
