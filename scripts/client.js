@@ -42,13 +42,13 @@ let lastUpdate = 0;
 const UPDATE_INTERVAL = 100; // Update every 100ms (10 FPS)
 
 // Function to load the player model once
-function loadPlayerModel() {
+async function loadPlayerModel() {
     if (playerModel) {
         // If the model is already loaded, return it
         return Promise.resolve(playerModel);
     } else {
         // Load the player model once
-        return BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene).then(function(result) {
+        return await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene).then(function(result) {
             // Store the model reference (the first mesh in the result)
             playerModel = result.meshes[0];
             playerModel.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01); // Scale the model to an appropriate size
@@ -70,6 +70,8 @@ function loadPlayerModel() {
         });
     }
 }
+
+loadPlayerModel();
 
 // Function to create and clone the model for a remote player
 function createRemotePlayer(playerId, position) {
