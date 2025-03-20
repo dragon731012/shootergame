@@ -55,7 +55,7 @@ window.handleOtherPlayerMovement = function(data) {
     }
 
     if (!remotePlayers[data.id]) {
-        BABYLON.SceneLoader.ImportMeshAsync("", "models/", "character.glb", scene).then(function(result) {
+        BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene).then(function(result) {
             let model = result.meshes[0];
             model.scaling = new BABYLON.Vector3(1, 1, 1);
             model.position = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
