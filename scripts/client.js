@@ -47,40 +47,83 @@ window.handleOtherPlayerMovement = function(data) {
         if (elapsed < 1000) {
             return;
         } else {
-            // Clear the flag if enough time has passed
             delete recentlyDisconnected[data.id];
         }
     }
 
     if (!remotePlayers[data.id]) {
-        // Create a new mesh for this remote player.
-        let remoteMesh = BABYLON.MeshBuilder.CreateSphere("remote_" + data.id, { diameter: 4 }, scene);
-        remoteMesh.position = new BABYLON.Vector3(
-            data.movementData.x, 
-            data.movementData.y, 
-            data.movementData.z
-        );
-        let mat = new BABYLON.StandardMaterial("remoteMat_" + data.id, scene);
-        mat.diffuseColor = new BABYLON.Color3(0, 0, 1); // Blue for remote players
-        remoteMesh.material = mat;
-        remotePlayers[data.id] = remoteMesh;
+        // Load the animated GLB model for this remote player
+        BABYLON.SceneLoader.ImportMesh("", "assets/", "player.glb", scene, function(meshes, particleSystems, skeletons, animationGroups) {
+            // Assume the main model is the first mesh
+            let model = meshes[0];
+            model.scaling = new BABYLON.Vector3(1, 1, 1); // Adjust scaling as needed
+            model.position = new BABYLON.Vector3(
+                data.movementData.x, 
+                data.movementData.y, 
+                data.movementData.z
+            );
+
+            // Organize animations based on keywords (adjust these if needed)
+            let anims = {};
+            animationGroups.forEach(ag => {
+                let name = ag.name.toLowerCase();
+                if (name.includes("idle")) {
+                    anims.idle = ag;
+                } else if (name.includes("walk")) {
+                    anims.walk = ag;
+                } else if (name.includes("run")) {
+                    anims.run = ag;
+                }
+            });
+            
+            // Start the idle animation by default
+            if (anims.idle) {
+                anims.idle.start(true);
+            }
+            
+            // Save remote player info along with a clone of the current position for movement tracking
+            remotePlayers[data.id] = {
+                model: model,
+                animations: anims,
+                lastPosition: model.position.clone()
+            };
+        });
     } else {
-        // Update existing remote player's position and rotation
-        let remoteMesh = remotePlayers[data.id];
-        remoteMesh.position.x = data.movementData.x;
-        remoteMesh.position.y = data.movementData.y;
-        remoteMesh.position.z = data.movementData.z;
+        // Update existing remote player's model position and rotation
+        let remote = remotePlayers[data.id];
+        let model = remote.model;
+        model.position.set(data.movementData.x, data.movementData.y, data.movementData.z);
         if (data.rotationData) {
-            remoteMesh.rotation.x = data.rotationData.x;
-            remoteMesh.rotation.y = data.rotationData.y;
-            remoteMesh.rotation.z = data.rotationData.z;
+            model.rotation.set(data.rotationData.x, data.rotationData.y, data.rotationData.z);
+        }
+
+        // Calculate movement speed to switch animations based on movement
+        let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
+        let speed = BABYLON.Vector3.Distance(remote.lastPosition, newPos);
+        remote.lastPosition.copyFrom(newPos);
+
+        // If moving, play walk animation; otherwise, idle.
+        if (speed > 0.1) { // Adjust threshold as needed
+            if (remote.animations.idle && remote.animations.idle.isPlaying) {
+                remote.animations.idle.stop();
+            }
+            if (remote.animations.walk && !remote.animations.walk.isPlaying) {
+                remote.animations.walk.start(true);
+            }
+        } else {
+            if (remote.animations.walk && remote.animations.walk.isPlaying) {
+                remote.animations.walk.stop();
+            }
+            if (remote.animations.idle && !remote.animations.idle.isPlaying) {
+                remote.animations.idle.start(true);
+            }
         }
     }
 };
 
 window.handlePlayerDisconnected = function(data) {
     if (remotePlayers[data.id]) {
-        remotePlayers[data.id].dispose();
+        remotePlayers[data.id].model.dispose();
         delete remotePlayers[data.id];
     }
     // Mark the player as recently disconnected with the current timestamp
