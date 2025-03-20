@@ -44,7 +44,7 @@ const UPDATE_INTERVAL = 100; // Update every 100ms (10 FPS)
 function createPlayerModel(playerId, position) {
     return BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene).then(function(result) {
         let model = result.meshes[0];
-        model.scaling = new BABYLON.Vector3(1, 1, 1);
+        model.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01);
         model.position = position;
 
         // Assign animations (simplified)
