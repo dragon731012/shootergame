@@ -1,4 +1,3 @@
-vname: Sync to GitLab
 
 on:
   push:
