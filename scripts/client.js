@@ -56,7 +56,7 @@ window.handleOtherPlayerMovement = function(data) {
         BABYLON.SceneLoader.ImportMesh("", "assets/", "player.glb", scene, function(meshes, particleSystems, skeletons, animationGroups) {
             // Assume the main model is the first mesh
             let model = meshes[0];
-            model.scaling = new BABYLON.Vector3(1, 1, 1); // Adjust scaling as needed
+            model.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1); // Adjust scaling as needed
             model.position = new BABYLON.Vector3(
                 data.movementData.x, 
                 data.movementData.y, 
