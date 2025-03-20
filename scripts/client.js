@@ -107,7 +107,7 @@ async function startGame(){
             head: head,
             gun: playergun,
             bullet: playerbullet,
-            lastPosition: cameraHitbox.position.clone()
+            lastPosition: BABYLON.Vector3(0,0,0)
         };
     }
 
@@ -134,9 +134,8 @@ async function startGame(){
             let remote = remotePlayers[data.id];
             let model = remote.model;
             model.position.set(data.movementData.x, data.movementData.y, data.movementData.z);
-            if (data.rotationData) {
-                model.rotation.set(data.rotationData.x, data.rotationData.y, data.rotationData.z);
-            }
+            model.rotation.set(data.rotationData.x, data.rotationData.y, data.rotationData.z);
+            console.log(data.rotationData);
 
             let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
             let speed = BABYLON.Vector3.Distance(remote.lastPosition, newPos);
