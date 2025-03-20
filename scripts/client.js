@@ -35,38 +35,66 @@ window.network = {
     }
 };
 
-let remotePlayers = {}; // Store player models here
+let remotePlayers = {};  // Store player models here
 let recentlyDisconnected = {}; // Track recently disconnected players
+let playerModel; // Store the loaded player model for cloning
 let lastUpdate = 0;
 const UPDATE_INTERVAL = 100; // Update every 100ms (10 FPS)
 
-// Function to create and return a model for a remote player
-function createPlayerModel(playerId, position) {
-    return BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene).then(function(result) {
-        let model = result.meshes[0];
-        model.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01);
-        model.position = position;
+// Function to load the player model once
+function loadPlayerModel() {
+    if (playerModel) {
+        // If the model is already loaded, return it
+        return Promise.resolve(playerModel);
+    } else {
+        // Load the player model once
+        return BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene).then(function(result) {
+            // Store the model reference (the first mesh in the result)
+            playerModel = result.meshes[0];
+            playerModel.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01); // Scale the model to an appropriate size
 
-        // Assign animations (simplified)
-        let anims = {};
-        result.animationGroups.forEach(ag => {
-            let name = ag.name.toLowerCase();
-            if (name.includes("idle")) anims.idle = ag;
-            else if (name.includes("walk")) anims.walk = ag;
+            // Optionally, assign animations to the model
+            let anims = {};
+            result.animationGroups.forEach(ag => {
+                let name = ag.name.toLowerCase();
+                if (name.includes("idle")) anims.idle = ag;
+                else if (name.includes("walk")) anims.walk = ag;
+            });
+
+            if (anims.idle) anims.idle.start(true);
+
+            // Return the loaded model to be used for cloning
+            return playerModel;
+        }).catch(function(error) {
+            console.error("Error loading model:", error);
         });
+    }
+}
 
-        if (anims.idle) anims.idle.start(true);
+// Function to create and clone the model for a remote player
+function createRemotePlayer(playerId, position) {
+    loadPlayerModel().then((model) => {
+        // Clone the loaded model for this player
+        let clonedModel = model.clone("player_" + playerId);
+        clonedModel.position = position;
 
-        // Store the model and animations
+        // Assign the cloned model to the remotePlayers object
         remotePlayers[playerId] = {
-            model: model,
-            animations: anims,
-            lastPosition: model.position.clone()
+            model: clonedModel,
+            animations: model.animations, // Reuse the animations from the original model
+            lastPosition: clonedModel.position.clone()
         };
 
-        return model;
-    }).catch(function(error) {
-        console.error("Error loading model:", error);
+        // Optionally, handle animations for the cloned model
+        if (remotePlayers[playerId].animations) {
+            let anims = remotePlayers[playerId].animations;
+            // For example, if the player is walking, you can play the walk animation
+            if (anims.walk) {
+                anims.walk.start(true);
+            } else if (anims.idle) {
+                anims.idle.start(true);
+            }
+        }
     });
 }
 
@@ -87,7 +115,7 @@ window.handleOtherPlayerMovement = function(data) {
 
     if (!remotePlayers[data.id]) {
         // Create and load the model for the new player
-        createPlayerModel(data.id, new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z));
+        createRemotePlayer(data.id, new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z));
     } else {
         // Update existing player's position and animations
         let remote = remotePlayers[data.id];
