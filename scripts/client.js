@@ -35,11 +35,42 @@ window.network = {
     }
 };
 
-let remotePlayers = {};
-let recentlyDisconnected = {};
+let remotePlayers = {}; // Store player models here
+let recentlyDisconnected = {}; // Track recently disconnected players
 let lastUpdate = 0;
 const UPDATE_INTERVAL = 100; // Update every 100ms (10 FPS)
 
+// Function to create and return a model for a remote player
+function createPlayerModel(playerId, position) {
+    return BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene).then(function(result) {
+        let model = result.meshes[0];
+        model.scaling = new BABYLON.Vector3(1, 1, 1);
+        model.position = position;
+
+        // Assign animations (simplified)
+        let anims = {};
+        result.animationGroups.forEach(ag => {
+            let name = ag.name.toLowerCase();
+            if (name.includes("idle")) anims.idle = ag;
+            else if (name.includes("walk")) anims.walk = ag;
+        });
+
+        if (anims.idle) anims.idle.start(true);
+
+        // Store the model and animations
+        remotePlayers[playerId] = {
+            model: model,
+            animations: anims,
+            lastPosition: model.position.clone()
+        };
+
+        return model;
+    }).catch(function(error) {
+        console.error("Error loading model:", error);
+    });
+}
+
+// Function to handle player movement and animations
 window.handleOtherPlayerMovement = function(data) {
     const currentTime = Date.now();
     if (currentTime - lastUpdate < UPDATE_INTERVAL) return;
@@ -47,7 +78,7 @@ window.handleOtherPlayerMovement = function(data) {
 
     if (recentlyDisconnected[data.id]) {
         const elapsed = Date.now() - recentlyDisconnected[data.id];
-        if (elapsed < 1000) {
+        if (elapsed < 1000) { // Ignore updates within 1 second after disconnection
             return;
         } else {
             delete recentlyDisconnected[data.id];
@@ -55,30 +86,10 @@ window.handleOtherPlayerMovement = function(data) {
     }
 
     if (!remotePlayers[data.id]) {
-        BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene).then(function(result) {
-            let model = result.meshes[0];
-            model.scaling = new BABYLON.Vector3(1, 1, 1);
-            model.position = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
-
-            // Assign animations (simplified)
-            let anims = {};
-            result.animationGroups.forEach(ag => {
-                let name = ag.name.toLowerCase();
-                if (name.includes("idle")) anims.idle = ag;
-                else if (name.includes("walk")) anims.walk = ag;
-            });
-
-            if (anims.idle) anims.idle.start(true);
-
-            remotePlayers[data.id] = {
-                model: model,
-                animations: anims,
-                lastPosition: model.position.clone()
-            };
-        }).catch(function(error) {
-            console.error("Error loading model:", error);
-        });
+        // Create and load the model for the new player
+        createPlayerModel(data.id, new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z));
     } else {
+        // Update existing player's position and animations
         let remote = remotePlayers[data.id];
         let model = remote.model;
         model.position.set(data.movementData.x, data.movementData.y, data.movementData.z);
@@ -90,6 +101,7 @@ window.handleOtherPlayerMovement = function(data) {
         let speed = BABYLON.Vector3.Distance(remote.lastPosition, newPos);
         remote.lastPosition.copyFrom(newPos);
 
+        // If player is moving, start the walk animation, otherwise play idle
         if (speed > 0.1) {
             if (remote.animations.idle && remote.animations.idle.isPlaying) {
                 remote.animations.idle.stop();
@@ -108,10 +120,13 @@ window.handleOtherPlayerMovement = function(data) {
     }
 };
 
+// Function to handle player disconnection
 window.handlePlayerDisconnected = function(data) {
     if (remotePlayers[data.id]) {
+        // Properly dispose of the model when a player disconnects
         remotePlayers[data.id].model.dispose();
         delete remotePlayers[data.id];
     }
+    // Mark the player as recently disconnected to avoid rapid reloading
     recentlyDisconnected[data.id] = Date.now();
 };
