@@ -48,7 +48,7 @@ async function startGame(){
         let result = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene);
         playerModel = result.meshes[0];
         playerModel.isVisible = false; // Make sure it isn't visible initially
-        playerModel.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01); // Scale the model to an appropriate size
+        playerModel.scaling = new BABYLON.Vector3(1, 1, 1); // Scale the model to an appropriate size
 
         // Assign animations to the model
         let anims = {};
