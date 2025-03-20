@@ -107,7 +107,7 @@ async function startGame(){
             head: head,
             gun: playergun,
             bullet: playerbullet,
-            lastPosition: BABYLON.Vector3(0,0,0)
+            lastPosition: new BABYLON.Vector3(0, 0, 0)
         };
     }
 
