@@ -66,29 +66,27 @@ async function startGame(){
     });
 
     function createRemotePlayer(playerId, position) {
-        loadPlayerModel().then((model) => {
-            // Clone the loaded model for this player
-            let clonedModel = model.clone("player_" + playerId);
-            clonedModel.position = position;
-    
-            // Assign the cloned model to the remotePlayers object
-            remotePlayers[playerId] = {
-                model: clonedModel,
-                animations: model.animations, // Reuse the animations from the original model
-                lastPosition: clonedModel.position.clone()
-            };
-    
-            // Optionally, handle animations for the cloned model
-            if (remotePlayers[playerId].animations) {
-                let anims = remotePlayers[playerId].animations;
-                // For example, if the player is walking, you can play the walk animation
-                if (anims.walk) {
-                    anims.walk.start(true);
-                } else if (anims.idle) {
-                    anims.idle.start(true);
-                }
+        // Clone the loaded model for this player
+        let clonedModel = playerModel.clone("player_" + playerId);
+        clonedModel.position = position;
+
+        // Assign the cloned model to the remotePlayers object
+        remotePlayers[playerId] = {
+            model: clonedModel,
+            animations: model.animations, // Reuse the animations from the original model
+            lastPosition: clonedModel.position.clone()
+        };
+
+        // Optionally, handle animations for the cloned model
+        if (remotePlayers[playerId].animations) {
+            let anims = remotePlayers[playerId].animations;
+            // For example, if the player is walking, you can play the walk animation
+            if (anims.walk) {
+                anims.walk.start(true);
+            } else if (anims.idle) {
+                anims.idle.start(true);
             }
-        });
+        }
     }
     
     // Function to handle player movement and animations
