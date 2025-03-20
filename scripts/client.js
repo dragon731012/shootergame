@@ -133,18 +133,12 @@ window.handleOtherPlayerMovement = function(data) {
 
         // If player is moving, start the walk animation, otherwise play idle
         if (speed > 0.1) {
-            if (remote.animations.idle && remote.animations.idle.isPlaying) {
-                remote.animations.idle.stop();
-            }
             if (remote.animations.walk && !remote.animations.walk.isPlaying) {
                 remote.animations.walk.start(true);
             }
         } else {
             if (remote.animations.walk && remote.animations.walk.isPlaying) {
                 remote.animations.walk.stop();
-            }
-            if (remote.animations.idle && !remote.animations.idle.isPlaying) {
-                remote.animations.idle.start(true);
             }
         }
     }
