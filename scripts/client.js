@@ -73,7 +73,6 @@ function createRemotePlayer(playerId, position) {
 
     let clonedModel = playerModel.clone("player_" + playerId);
     clonedModel.position = position;
-    clonedModel.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(Math.PI / 2, 0, 0);
     clonedModel.isVisible = true;
 
     remotePlayers[playerId] = {
@@ -109,13 +108,12 @@ window.handleOtherPlayerMovement = function(data) {
         let model = remote.model;
         model.position.set(data.movementData.x, data.movementData.y, data.movementData.z);
 
-        if (data.rotationData) {  
-            let yaw = data.rotationData.x;
-            model.getChildMeshes().forEach(mesh => {
-                mesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
-            });
-            console.log(data.rotation);        
-        }        
+        if (data.rotationData) {
+            const dir = new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z);
+            const yaw = Math.atan2(dir.x, dir.z);
+        
+            model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
+        }           
 
         let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
         let speed = BABYLON.Vector3.Distance(remote.lastPosition, newPos);
