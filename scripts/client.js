@@ -107,8 +107,14 @@ window.handleOtherPlayerMovement = function(data) {
         let remote = remotePlayers[data.id];
         let model = remote.model;
         model.position.set(data.movementData.x, data.movementData.y, data.movementData.z);
-        if (data.rotationData) {
-            model.rotation.set(data.rotationData.x, data.rotationData.y, data.rotationData.z);
+        
+        // ✅ Corrected Rotation Handling
+        if (data.rotation) {  
+            model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(
+                data.rotation.y, // Yaw (Y-axis rotation)
+                data.rotation.x, // Pitch (X-axis rotation)
+                data.rotation.z  // Roll (Z-axis rotation)
+            );
         }
 
         let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
@@ -116,35 +122,31 @@ window.handleOtherPlayerMovement = function(data) {
         remote.lastPosition.copyFrom(newPos);
 
         // Determine which animation to play
-        // Calculate movement direction
         let movementDir = new BABYLON.Vector3(
             newPos.x - remote.lastPosition.x,
-            0, // Ignore Y-axis for movement direction
+            0,
             newPos.z - remote.lastPosition.z
         ).normalize();
 
-        // Determine the primary movement direction
         let animationToPlay = "idle";
         if (speed > 0.1) {
             if (Math.abs(movementDir.z) > Math.abs(movementDir.x)) {
-                if (movementDir.z > 0) animationToPlay = "run";       // Moving forward
-                else animationToPlay = "run_back";                    // Moving backward
+                animationToPlay = movementDir.z > 0 ? "run" : "run_back";
             } else {
-                if (movementDir.x > 0) animationToPlay = "run_right"; // Moving right
-                else animationToPlay = "run_left";                    // Moving left
+                animationToPlay = movementDir.x > 0 ? "run_right" : "run_left";
             }
         }
 
-        // Only switch animations if it's different from the current one
         if (remote.currentAnimation !== animationToPlay) {
             Object.values(remote.animations).forEach(anim => anim.stop());
             if (remote.animations[animationToPlay]) {
                 remote.animations[animationToPlay].start(true);
-                remote.currentAnimation = animationToPlay; // Store current animation
+                remote.currentAnimation = animationToPlay;
             }
-        }     
+        }
     }
 };
+
 
 // Function to handle player disconnection
 window.handlePlayerDisconnected = function(data) {
