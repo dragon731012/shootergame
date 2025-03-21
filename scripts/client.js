@@ -126,8 +126,12 @@ window.handleOtherPlayerMovement = function(data) {
             newPos.z - remote.lastPosition.z
         ).normalize();
 
-        let animationToPlay = "idle";
+        let animationToPlay = "idle"; // Default to idle
         if (speed > 0.1) {
+            // Debugging: Output the movement direction for debugging purposes
+            console.log("Movement Direction:", movementDir);
+            
+            // Determine animation based on movement direction
             if (Math.abs(movementDir.z) > Math.abs(movementDir.x)) {
                 animationToPlay = movementDir.z > 0 ? "run" : "run_back";
             } else {
@@ -135,7 +139,9 @@ window.handleOtherPlayerMovement = function(data) {
             }
         }
 
+        // Check if the selected animation is already playing
         if (remote.currentAnimation !== animationToPlay) {
+            // Stop the current animation (if any) and start the new one
             Object.values(remote.animations).forEach(anim => anim.stop());
             if (remote.animations[animationToPlay]) {
                 remote.animations[animationToPlay].start(true);
