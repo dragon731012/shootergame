@@ -299,7 +299,7 @@ const createScene = async () => {
         }
         
         if (window.network && player) {
-            window.network.sendPlayerMovement(player.position,player.rotationQuaternion);
+            window.network.sendPlayerMovement(player.position,camera.getDirection(new BABYLON.Vector3(0,0,1)));
         }    
     });
 
