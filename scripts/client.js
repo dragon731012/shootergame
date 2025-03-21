@@ -116,23 +116,33 @@ window.handleOtherPlayerMovement = function(data) {
         remote.lastPosition.copyFrom(newPos);
 
         // Determine which animation to play
-        if (data.action && animations[data.action]) {
-            // Only switch animations if the new one isn't already playing
-            if (!animations[data.action].isPlaying) {
-                Object.values(animations).forEach(anim => anim.stop());
-                animations[data.action].start(true);
+        // Calculate movement direction
+        let movementDir = new BABYLON.Vector3(
+            newPos.x - remote.lastPosition.x,
+            0, // Ignore Y-axis for movement direction
+            newPos.z - remote.lastPosition.z
+        ).normalize();
+
+        // Determine the primary movement direction
+        let animationToPlay = "idle";
+        if (speed > 0.1) {
+            if (Math.abs(movementDir.z) > Math.abs(movementDir.x)) {
+                if (movementDir.z > 0) animationToPlay = "run";       // Moving forward
+                else animationToPlay = "run_back";                    // Moving backward
+            } else {
+                if (movementDir.x > 0) animationToPlay = "run_right"; // Moving right
+                else animationToPlay = "run_left";                    // Moving left
             }
-        } else if (speed > 0.1) {
-            if (animations["run"] && !animations["run"].isPlaying) {
-                Object.values(animations).forEach(anim => anim.stop());
-                animations["run"].start(true);
+        }
+
+        // Only switch animations if it's different from the current one
+        if (remote.currentAnimation !== animationToPlay) {
+            Object.values(remote.animations).forEach(anim => anim.stop());
+            if (remote.animations[animationToPlay]) {
+                remote.animations[animationToPlay].start(true);
+                remote.currentAnimation = animationToPlay; // Store current animation
             }
-        } else {
-            if (animations["idle"] && !animations["idle"].isPlaying) {
-                Object.values(animations).forEach(anim => anim.stop());
-                animations["idle"].start(true);
-            }
-        }        
+        }     
     }
 };
 
