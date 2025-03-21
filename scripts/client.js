@@ -88,7 +88,6 @@ function createRemotePlayer(playerId, position) {
 
 // Function to handle player movement and animations
 window.handleOtherPlayerMovement = function(data) {
-    console.log(data);
     const currentTime = Date.now();
     if (currentTime - lastUpdate < UPDATE_INTERVAL) return;
     lastUpdate = currentTime;
@@ -108,13 +107,10 @@ window.handleOtherPlayerMovement = function(data) {
         let remote = remotePlayers[data.id];
         let model = remote.model;
         model.position.set(data.movementData.x, data.movementData.y, data.movementData.z);
-        console.log(data.rotation);
         // ✅ Corrected Rotation Handling
-        if (data.rotation) {  
-            console.log("rotating...");
+        if (data.rotationData) {  
             model.getChildMeshes().forEach(mesh => {
-                mesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(data.rotation.x, data.rotation.y, data.rotation.z );
-                console.log(data.rotation);
+                mesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(data.rotationData.x, data.rotationData.y, data.rotationData.z );
             });            
         }
 
