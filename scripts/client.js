@@ -111,7 +111,8 @@ window.handleOtherPlayerMovement = function(data) {
         if (data.rotationData) {  
             model.getChildMeshes().forEach(mesh => {
                 mesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(data.rotationData.x, data.rotationData.y, data.rotationData.z );
-            });            
+            });    
+            console.log(data.rotationData);        
         }
 
         let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
