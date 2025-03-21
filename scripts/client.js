@@ -110,11 +110,9 @@ window.handleOtherPlayerMovement = function(data) {
         
         // ✅ Corrected Rotation Handling
         if (data.rotation) {  
-            model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(
-                data.rotation.y, // Yaw (Y-axis rotation)
-                data.rotation.x, // Pitch (X-axis rotation)
-                data.rotation.z  // Roll (Z-axis rotation)
-            );
+            model.getChildMeshes().forEach(mesh => {
+                mesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(data.rotation.y, Math.PI/2, data.rotation.z );
+            });            
         }
 
         let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
