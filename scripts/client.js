@@ -73,6 +73,7 @@ function createRemotePlayer(playerId, position) {
 
     let clonedModel = playerModel.clone("player_" + playerId);
     clonedModel.position = position;
+    clonedModel.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(Math.PI / 2, 0, 0);
     clonedModel.isVisible = true;
 
     remotePlayers[playerId] = {
