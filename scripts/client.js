@@ -110,7 +110,7 @@ window.handleOtherPlayerMovement = function(data) {
         // ✅ Corrected Rotation Handling
         if (data.rotationData) {  
             model.getChildMeshes().forEach(mesh => {
-                mesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(data.rotationData.y, 0, 0);
+                mesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(data.rotationData.x, 0, 0);
             });    
             console.log(data.rotationData);        
         }
