@@ -88,6 +88,7 @@ function createRemotePlayer(playerId, position) {
 
 // Function to handle player movement and animations
 window.handleOtherPlayerMovement = function(data) {
+    console.log(data);
     const currentTime = Date.now();
     if (currentTime - lastUpdate < UPDATE_INTERVAL) return;
     lastUpdate = currentTime;
