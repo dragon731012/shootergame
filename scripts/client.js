@@ -107,7 +107,7 @@ window.handleOtherPlayerMovement = function(data) {
         let remote = remotePlayers[data.id];
         let model = remote.model;
         model.position.set(data.movementData.x, data.movementData.y, data.movementData.z);
-        
+        console.log(data.rotation);
         // ✅ Corrected Rotation Handling
         if (data.rotation) {  
             console.log("rotating...");
