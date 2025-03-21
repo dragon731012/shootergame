@@ -86,7 +86,8 @@ function createRemotePlayer(playerId, position) {
     }
 }
 
-// Function to handle player movement and animations
+let smoothingFactor = 0.1; // Adjust this for smoother (lower) or more immediate (higher) transitions
+
 window.handleOtherPlayerMovement = function(data) {
     const currentTime = Date.now();
     if (currentTime - lastUpdate < UPDATE_INTERVAL) return;
@@ -109,7 +110,8 @@ window.handleOtherPlayerMovement = function(data) {
 
         // Interpolating position using Lerp for smooth movement
         let targetPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
-        model.position = BABYLON.Vector3.Lerp(model.position, targetPos, 0.1); // 0.1 is the smoothing factor, adjust as needed
+        // Lerp using delta time to smooth the transition
+        model.position = BABYLON.Vector3.Lerp(model.position, targetPos, smoothingFactor);
 
         // Interpolating rotation using Slerp for smooth rotation
         if (data.rotationData) {
@@ -119,8 +121,8 @@ window.handleOtherPlayerMovement = function(data) {
             // Create a target rotation quaternion
             const targetRotation = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
 
-            // Smoothly interpolate rotation using Slerp
-            model.rotationQuaternion = BABYLON.Quaternion.Slerp(model.rotationQuaternion, targetRotation, 0.1); // 0.1 is the smoothing factor
+            // Smoothly interpolate rotation using Slerp with a time-based factor
+            model.rotationQuaternion = BABYLON.Quaternion.Slerp(model.rotationQuaternion, targetRotation, smoothingFactor);
         }
 
         let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
@@ -151,7 +153,6 @@ window.handleOtherPlayerMovement = function(data) {
         }
     }
 };
-
 
 
 // Function to handle player disconnection
