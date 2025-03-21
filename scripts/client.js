@@ -107,13 +107,13 @@ window.handleOtherPlayerMovement = function(data) {
         let remote = remotePlayers[data.id];
         let model = remote.model;
         model.position.set(data.movementData.x, data.movementData.y, data.movementData.z);
-        // ✅ Corrected Rotation Handling
-        if (data.rotationData) {  
+        
+        if (data.rotation) {  
             model.getChildMeshes().forEach(mesh => {
-                mesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(data.rotationData.x, 0, 0);
-            });    
-            console.log(data.rotationData);        
-        }
+                mesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(data.rotation.y, 0, 0);
+            });
+            console.log(data.rotation);        
+        }        
 
         let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
         let speed = BABYLON.Vector3.Distance(remote.lastPosition, newPos);
