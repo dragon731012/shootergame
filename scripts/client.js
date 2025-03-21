@@ -106,32 +106,35 @@ window.handleOtherPlayerMovement = function(data) {
     } else {
         let remote = remotePlayers[data.id];
         let model = remote.model;
-        model.position.set(data.movementData.x, data.movementData.y, data.movementData.z);
 
+        // Interpolating position using Lerp for smooth movement
+        let targetPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
+        model.position = BABYLON.Vector3.Lerp(model.position, targetPos, 0.1); // 0.1 is the smoothing factor, adjust as needed
+
+        // Interpolating rotation using Slerp for smooth rotation
         if (data.rotationData) {
             const dir = new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z);
-            const yaw = Math.atan2(dir.x, dir.z);
-        
-            model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
-        }           
+            const yaw = Math.atan2(dir.x, dir.z); // Calculate yaw based on the direction vector
+
+            // Create a target rotation quaternion
+            const targetRotation = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
+
+            // Smoothly interpolate rotation using Slerp
+            model.rotationQuaternion = BABYLON.Quaternion.Slerp(model.rotationQuaternion, targetRotation, 0.1); // 0.1 is the smoothing factor
+        }
 
         let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
         let speed = BABYLON.Vector3.Distance(remote.lastPosition, newPos);
         remote.lastPosition.copyFrom(newPos);
 
-        // Determine which animation to play
         let movementDir = new BABYLON.Vector3(
             newPos.x - remote.lastPosition.x,
             0,
             newPos.z - remote.lastPosition.z
         ).normalize();
 
-        let animationToPlay = "idle"; // Default to idle
+        let animationToPlay = "idle";
         if (speed > 0.1) {
-            // Debugging: Output the movement direction for debugging purposes
-            console.log("Movement Direction:", movementDir);
-            
-            // Determine animation based on movement direction
             if (Math.abs(movementDir.z) > Math.abs(movementDir.x)) {
                 animationToPlay = movementDir.z > 0 ? "run" : "run_back";
             } else {
@@ -139,9 +142,7 @@ window.handleOtherPlayerMovement = function(data) {
             }
         }
 
-        // Check if the selected animation is already playing
         if (remote.currentAnimation !== animationToPlay) {
-            // Stop the current animation (if any) and start the new one
             Object.values(remote.animations).forEach(anim => anim.stop());
             if (remote.animations[animationToPlay]) {
                 remote.animations[animationToPlay].start(true);
@@ -150,6 +151,7 @@ window.handleOtherPlayerMovement = function(data) {
         }
     }
 };
+
 
 
 // Function to handle player disconnection
