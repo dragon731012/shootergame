@@ -117,11 +117,16 @@ window.handleOtherPlayerMovement = function(data) {
 
         // Determine which animation to play
         if (data.action && animations[data.action]) {
+            // Stop all animations before playing the new one
             Object.values(animations).forEach(anim => anim.stop());
             animations[data.action].start(true);
         } else if (speed > 0.1) {
+            // If moving, stop idle and start walking
+            Object.values(animations).forEach(anim => anim.stop());
             if (animations["walk"]) animations["walk"].start(true);
         } else {
+            // If stopped, stop walk and play idle
+            Object.values(animations).forEach(anim => anim.stop());
             if (animations["idle"]) animations["idle"].start(true);
         }
     }
