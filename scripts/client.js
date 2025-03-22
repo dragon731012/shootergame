@@ -68,6 +68,7 @@ async function startGame() {
 function createRemotePlayer(playerId, position) {
     if (!assetsLoaded) return;
 
+    // Clone the model
     let clonedModel = playerModel.clone("player_" + playerId);
     clonedModel.position.copyFrom(position);
     clonedModel.isVisible = true;
@@ -75,13 +76,32 @@ function createRemotePlayer(playerId, position) {
         clonedModel.rotationQuaternion = BABYLON.Quaternion.Identity();
     }
 
+    // Clone the skeleton
+    if (playerModel.skeleton) {
+        const clonedSkeleton = playerModel.skeleton.clone("clonedSkeleton_" + playerId);
+        clonedModel.skeleton = clonedSkeleton;
+    }
+
+    // Log all nodes in the cloned model for debugging
+    const allNodes = clonedModel.getChildTransformNodes(true);
+    console.log("Cloned model nodes:", allNodes.map(node => node.name));
+
+    // Fix node name mismatches
+    allNodes.forEach(node => {
+        // Example: Rename "WristL_Clone" to "WristL"
+        if (node.name.endsWith("_Clone")) {
+            node.name = node.name.replace("_Clone", "");
+        }
+        // Add more renaming logic as needed
+    });
+
     // Clone animations with corrected names
     const clonedAnimations = {};
     originalAnimations.forEach(({ name, animationGroup }) => {
         const clonedAG = new BABYLON.AnimationGroup(`player_${playerId}_${name}`, scene);
         clonedAG.from = animationGroup.from;
         clonedAG.to = animationGroup.to;
-        
+
         animationGroup.targetedAnimations.forEach(ta => {
             let targetNode;
             // Redirect animations targeting the original root to the cloned root
