@@ -86,19 +86,20 @@ scene.onBeforeRenderObservable.add(() => {
 });
 
 window.handleOtherPlayerShoot = async function(data) {
+    let remote = remotePlayers[data.id];
+    
     var bullet = await add3d("assets/bullet.glb");
     bullet.isVisible = false;
     bullet.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
 
     const bulletMaterial = new BABYLON.StandardMaterial("bulletMaterial", scene);
     bulletMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
+    bullet.material = bulletMaterial;
     
-
-    let gunTipPosition = data.position;
-    bullet.position.copyFrom(gunTipPosition);     
-
-    const bulletDirection = data.direction;
-
+    bullet.position.copyFrom(data.position);
+    
+    const bulletDirection = new BABYLON.Vector3(data.direction.x, data.direction.y, data.direction.z);
+    
     bullet.setParent(null);
     
     const bulletPhysics = new BABYLON.PhysicsAggregate(
@@ -107,23 +108,24 @@ window.handleOtherPlayerShoot = async function(data) {
         { mass: 0.001 },
         scene
     );
-
+    
     bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0)); 
     bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) });
-
+    
+    const shootForce = 1;
     bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
-
+    
     bullet.isVisible = true;
-
+    
     let animationToPlay = getMovementAnimation("shoot");
-    if (remote.currentAnimation !== animationToPlay) {
+    if (remote && remote.currentAnimation !== animationToPlay) {
         Object.values(remote.animations).forEach(anim => anim.stop());
         if (remote.animations[animationToPlay]) {
             remote.animations[animationToPlay].start(true);
             remote.currentAnimation = animationToPlay;
         }
     }
-}
+};
 
 window.handleOtherPlayerMovement = function(data) {
     data.movementData.y-=2;
