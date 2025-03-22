@@ -19,10 +19,11 @@ socket.on('playerDisconnected', (data) => {
 });
 
 window.network = {
-    sendPlayerMovement: function(position, rotation) {
+    sendPlayerMovement: function(position, rotation, direction) {
         socket.emit('player-movement', { 
             position: { x: position.x, y: position.y, z: position.z },
-            rotation: { x: rotation.x, y: rotation.y, z: rotation.z }
+            rotation: { x: rotation.x, y: rotation.y, z: rotation.z },
+            direction: direction
         });
     },
     sendShootEvent: function(gunPosition, direction) {
@@ -145,11 +146,8 @@ window.handleOtherPlayerMovement = function(data) {
             remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }
 
-        // Determine animation
-        const movementDelta = newPos.subtract(remote.startPosition);
-        const animationToPlay = movementDelta.length() > 0.1 ? 
-            getMovementAnimation(movementDelta.normalize()) : "idle";
-        console.log(movementDelta);
+        let animationToPlay=getMovementAnimation(movementDelta.normalize());
+
         if (remote.currentAnimation !== animationToPlay) {
             Object.values(remote.animations).forEach(anim => anim.stop());
             if (remote.animations[animationToPlay]) {
@@ -161,10 +159,10 @@ window.handleOtherPlayerMovement = function(data) {
 };
 
 function getMovementAnimation(direction) {
-    if (Math.abs(direction.z) > Math.abs(direction.x)) {
-        return direction.z > 0 ? "run" : "run_back";
-    }
-    return direction.x > 0 ? "run_right" : "run_left";
+    if (direction=="forward" || direction=="forwardleft" || direction=="forwardright") return "run";
+    if (direction=="backward" || direction=="backwardleft" || direction=="backwardright") return "run_back";
+    if (direction=="left") return "run_left";
+    if (direction=="right") return "run_right";
 }
 
 window.handlePlayerDisconnected = function(data) {

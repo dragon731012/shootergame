@@ -209,6 +209,8 @@ const createScene = async () => {
         const forward = camera.getForwardRay().direction;
         const right = BABYLON.Vector3.Cross(BABYLON.Vector3.Up(), forward).normalize();
 
+        var direction = "forward";
+
         // Zero out vertical movement
         forward.y = playerBody.body.getLinearVelocity().y;
         right.y = playerBody.body.getLinearVelocity().y;
@@ -258,6 +260,7 @@ const createScene = async () => {
             let targetRotation = new BABYLON.Vector3(-0.1, Math.PI / 2, 0);
             gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1);
             currentgunpos = -0.3;
+            direction = "left"
             //gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
@@ -297,9 +300,27 @@ const createScene = async () => {
                 gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetY, 0.1);
             }
         }
+
+        if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
+            direction = "forward"; 
+        } else if (!keyMap["w"] && keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
+            direction = "backward"; 
+        } else if (keyMap["a"] && !keyMap["w"] && !keyMap["s"] && !keyMap["d"]) {
+            direction = "left"; 
+        } else if (keyMap["d"] && !keyMap["w"] && !keyMap["s"] && !keyMap["a"]) {
+            direction = "right"; 
+        } else if (keyMap["w"] && !keyMap["s"] && keyMap["a"] && !keyMap["d"]) {
+            direction = "forwardleft"; 
+        } else if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && keyMap["d"]) {
+            direction = "forwardright"; 
+        } else if (!keyMap["w"] && keyMap["s"] && keyMap["a"] && !keyMap["d"]) {
+            direction = "reverseleft";t
+        } else if (!keyMap["w"] && keyMap["s"] && !keyMap["a"] && keyMap["d"]) {
+            direction = "reverseright"; 
+        }
         
         if (window.network && player) {
-            window.network.sendPlayerMovement(player.position,camera.getDirection(new BABYLON.Vector3(0,0,1)));
+            window.network.sendPlayerMovement(player.position,camera.getDirection(new BABYLON.Vector3(0,0,1)),direction);
         }    
     });
 
