@@ -51,7 +51,7 @@ function createRemotePlayer(playerId, position) {
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene)
         .then(result => {
             let remoteModel=result.meshes[0];
-            remoteModel.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
+            remoteModel.scaling = new BABYLON.Vector3(1.4, 1.4, 1.4);
             let remoteAnimations={};
             result.animationGroups.forEach(ag => {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
@@ -127,7 +127,7 @@ window.handleOtherPlayerMovement = function(data) {
                 data.rotationData.y,
                 data.rotationData.z
             );
-            const yaw = Math.atan2(dir.x, dir.z)+Math.PI;
+            const yaw = Math.atan2(dir.x, dir.z);
             remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }
 
