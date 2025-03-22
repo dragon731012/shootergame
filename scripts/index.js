@@ -7,6 +7,7 @@ let player;
 let playerBody;
 let showbullet;
 let gun;
+let physicsPlugin;
 let enemies = [];
 let keyMap = {};
 let isShooting = false;
@@ -48,7 +49,7 @@ const createScene = async () => {
 
     const gravityVector = new BABYLON.Vector3(0, -20, 0);
     const havokInstance = await HavokPhysics();
-    const physicsPlugin = new BABYLON.HavokPlugin(true, havokInstance);
+    physicsPlugin = new BABYLON.HavokPlugin(true, havokInstance);
     scene.enablePhysics(gravityVector, physicsPlugin);
 
     camera = new BABYLON.ArcRotateCamera(
