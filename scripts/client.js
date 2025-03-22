@@ -93,7 +93,6 @@ window.handleOtherPlayerShoot = async function(data) {
     const bulletMaterial = new BABYLON.StandardMaterial("bulletMaterial", scene);
     bulletMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
     
-    hl.addMesh(bullet, BABYLON.Color3.Yellow());
 
     let gunTipPosition = data.position;
     bullet.position.copyFrom(gunTipPosition);     
@@ -102,9 +101,6 @@ window.handleOtherPlayerShoot = async function(data) {
 
     bullet.setParent(null);
     
-    let forward = camera.getForwardRay().direction;
-    bullet.lookAt(bullet.position.add(forward));
-
     const bulletPhysics = new BABYLON.PhysicsAggregate(
         bullet,
         BABYLON.PhysicsShapeType.BOX,
