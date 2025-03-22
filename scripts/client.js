@@ -20,7 +20,7 @@ socket.on('playerShot', (data) => {
 
 socket.on('recieveDamageEvent', (data) => {
     if (window.handleRecieveDamageEvent) {
-        window.handleOtherPlayerShoot(data);
+        window.handleRecieveDamageEvent(data);
     }
 });
 
