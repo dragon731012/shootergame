@@ -97,23 +97,11 @@ window.handleOtherPlayerShoot = async function(data) {
     bullet.material = bulletMaterial;
 
     // Create the bullet direction vector and normalize it.
-    const bulletDirection = new BABYLON.Vector3(data.direction.x, data.direction.y, data.direction.z).normalize();
-
-    // Compute an offset relative to the remote player's model.
-    // We'll take the remote model's forward vector and compute a right vector from it.
-    let forward = BABYLON.Vector3.TransformNormal(new BABYLON.Vector3(1, 0, 0), remote.model.getWorldMatrix()).normalize();
-    
-    // Define offset values: a small backward offset and a sideways offset.
-    const backwardOffset = 0.2;  // Move the bullet closer (backward relative to the model)
-    const sideOffset = 0.2;      // Move it to the other side
+    const bulletDirection = data.direction;
 
     bullet.parent=remote.model;
 
-    // Here, we subtract along the forward direction (to come closer) and add along the right vector.
-    let bulletOrigin = new BABYLON.Vector3(data.position.x,data.position.y,data.position.z)
-        .add(forward.scale(-backwardOffset))
-
-    bullet.position.copyFrom(bulletOrigin);
+    bullet.position.copyFrom(data.position);
 
     // Detach bullet from remote player's model to move independently.
     bullet.setParent(null);
