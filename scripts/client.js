@@ -149,7 +149,7 @@ window.handleOtherPlayerMovement = function(data) {
         const movementDelta = newPos.subtract(remote.startPosition);
         const animationToPlay = movementDelta.length() > 0.1 ? 
             getMovementAnimation(movementDelta.normalize()) : "idle";
-        onsole.log(movementDelta);
+        console.log(movementDelta);
         if (remote.currentAnimation !== animationToPlay) {
             Object.values(remote.animations).forEach(anim => anim.stop());
             if (remote.animations[animationToPlay]) {
