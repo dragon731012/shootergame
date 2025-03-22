@@ -103,7 +103,7 @@ window.handleOtherPlayerMovement = function(data) {
 
     const newPos = new BABYLON.Vector3(
         data.movementData.x,
-        data.movementData.y,
+        data.movementData.y-0.5,
         data.movementData.z
     );
 
