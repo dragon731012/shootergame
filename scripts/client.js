@@ -106,7 +106,7 @@ window.handleOtherPlayerShoot = async function(data) {
     bullet.material = bulletMaterial;
 
     // Create the bullet direction vector and normalize it.
-    const bulletDirection = data.direction;
+    const bulletDirection = new BABYLON.Vector3(data.direction.x, data.direction.y, data.direction.z);
 
     bullet.parent=remote.model;
 
