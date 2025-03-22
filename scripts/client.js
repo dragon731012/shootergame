@@ -95,6 +95,8 @@ window.handleOtherPlayerShoot = async function(data) {
     const bulletMaterial = new BABYLON.StandardMaterial("bulletMaterial", scene);
     bulletMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
     bullet.material = bulletMaterial;
+
+    bullet.parent=remote.model;
     
     bullet.position.copyFrom(data.position);
     
