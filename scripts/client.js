@@ -132,15 +132,10 @@ window.handleOtherPlayerMovement = function(data) {
         console.log("direction: "+data.direction,"animation:"+animationToPlay);
 
         if (remote.currentAnimation !== animationToPlay) {
-            // Stop all animations.
             Object.values(remote.animations).forEach(anim => anim.stop());
-            // Start the new animation if it exists.
-            const newAnim = remote.animations[animationToPlay];
-            if (newAnim) {
-                newAnim.start(true, 1.0, newAnim.from, newAnim.to, true);
+            if (remote.animations[animationToPlay]) {
+                remote.animations[animationToPlay].start(true);
                 remote.currentAnimation = animationToPlay;
-            } else {
-                console.warn(`Animation '${animationToPlay}' not found for player ${data.id}. Available:`, Object.keys(remote.animations));
             }
         }
     }
