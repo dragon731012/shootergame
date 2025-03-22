@@ -50,71 +50,12 @@ function createRemotePlayer(playerId, position) {
 
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene)
         .then(result => {
-            // Stop all imported animation groups immediately.
-            result.animationGroups.forEach(ag => ag.stop());
-            
-            // Log all animation group names for debugging.
-            console.log("Imported animation groups:", result.animationGroups.map(ag => ag.name));
-
-            // Choose the root mesh – adjust if your glTF uses a different naming convention.
-            let remoteModel = result.meshes.find(mesh => mesh.name.toLowerCase() === "player");
-            if (!remoteModel) {
-                remoteModel = result.meshes[0];
-            }
-            // Parent all other imported meshes to the chosen root.
-            result.meshes.forEach(mesh => {
-                if (mesh !== remoteModel) {
-                    mesh.parent = remoteModel;
-                }
-            });
-
-            // Set up basic properties.
-            remoteModel.position.copyFrom(position);
-            remoteModel.isVisible = true;
-            if (!remoteModel.rotationQuaternion) {
-                remoteModel.rotationQuaternion = BABYLON.Quaternion.Identity();
-            }
-
-            // Build animations only for allowed names.
-            let allowedAnims = ["idle", "run", "run_back", "run_left", "run_right"];
-            let remoteAnimations = {};
             result.animationGroups.forEach(ag => {
-                const animName = ag.name.toLowerCase();
-                if (!allowedAnims.includes(animName)) return; // Skip unwanted animations
-
-                // Create a new animation group for this remote player.
-                let newAnimGroup = new BABYLON.AnimationGroup(`player_${playerId}_${animName}`, scene);
-                newAnimGroup.from = ag.from;
-                newAnimGroup.to = ag.to;
-
-                ag.targetedAnimations.forEach(ta => {
-                    let targetNode;
-                    // If the animation targets the original root, use the remote model.
-                    if (ta.target === result.meshes[0]) {
-                        targetNode = remoteModel;
-                    } else {
-                        // Search for the node in the remote model's hierarchy.
-                        targetNode = remoteModel.getChildTransformNodes(true)
-                            .find(n => n.name === ta.target.name);
-                    }
-                    // Only add the channel if the target exists.
-                    if (targetNode) {
-                        const clonedAnimation = ta.animation.clone();
-                        newAnimGroup.addTargetedAnimation(clonedAnimation, targetNode);
-                    }
-                });
-                remoteAnimations[animName] = newAnimGroup;
+                animations[ag.name.toLowerCase()] = ag;
             });
+    
+            if (animations["idle"]) animations["idle"].start(true);
 
-            // For debugging, log the available animations for this remote player.
-            console.log(`Available animations for player ${playerId}:`, Object.keys(remoteAnimations));
-
-            // Start idle animation by default, if available.
-            if (remoteAnimations["idle"]) {
-                remoteAnimations["idle"].start(true, 1.0, remoteAnimations["idle"].from, remoteAnimations["idle"].to, true);
-            }
-
-            // Store the full remote player object.
             remotePlayers[playerId] = {
                 model: remoteModel,
                 animations: remoteAnimations,
