@@ -83,7 +83,7 @@ function createRemotePlayer(playerId, position) {
             new BABYLON.PhysicsAggregate(
                 remoteModelHitbox,
                 BABYLON.PhysicsShapeType.BOX,
-                { mass: 0},
+                { mass: 0.1},
                 scene
             );
 
