@@ -172,6 +172,7 @@ const createScene = async () => {
         window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection);
 
         onCollisionStart(bullet,(e)=>{
+            console.log(e);
             e.collider.owner.dispose();
             console.log("hit "+e.otherCollider.owner);
         });
