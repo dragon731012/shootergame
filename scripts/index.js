@@ -168,11 +168,7 @@ const createScene = async () => {
     
         bullet.isVisible = true;
 
-        if (keyMap["w"] || keyMap["s"]){
-            window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection,true);
-        } else {
-            window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection,false);
-        }
+        window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection);
     }
 
     document.addEventListener("click", async () => {

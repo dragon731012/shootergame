@@ -30,7 +30,7 @@ window.network = {
             direction: direction
         });
     },
-    sendShootEvent: function(gunPosition, direction, moving) {
+    sendShootEvent: function(gunPosition, direction) {
         socket.emit('shoot', { 
             position: gunPosition, 
             direction: { x: direction.x, y: direction.y, z: direction.z },
@@ -91,11 +91,8 @@ window.handleOtherPlayerShoot = async function(data) {
     
     let animationToPlay;
 
-    if (data.moving){
-        animationToPlay = getMovementAnimation("shoot");
-    } else {
-        animationToPlay = getMovementAnimation("movingshoot");
-    }
+    animationToPlay = getMovementAnimation("shoot");
+
     if (remote && remote.currentAnimation !== animationToPlay) {
         Object.values(remote.animations).forEach(anim => anim.stop());
         if (remote.animations[animationToPlay]) {
