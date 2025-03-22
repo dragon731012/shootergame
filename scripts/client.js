@@ -108,7 +108,7 @@ window.handleOtherPlayerShoot = async function(data) {
     const sideOffset = 0.2;      // Move it to the other side
 
     // Here, we subtract along the forward direction (to come closer) and add along the right vector.
-    let bulletOrigin = bullet.position
+    let bulletOrigin = data.position
         .add(forward.scale(-backwardOffset))
 
     bullet.position.copyFrom(bulletOrigin);
