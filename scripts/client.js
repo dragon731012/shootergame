@@ -76,25 +76,20 @@ function createRemotePlayer(playerId, position) {
         clonedModel.rotationQuaternion = BABYLON.Quaternion.Identity();
     }
 
-    // Clone animation groups for this player
     const clonedAnimations = {};
     originalAnimations.forEach(ag => {
-        const clonedAG = new BABYLON.AnimationGroup(`player_${playerId}_${ag.name}`, scene);
-        // Copy the animation boundaries from the original
-        clonedAG.from = ag.from;
-        clonedAG.to = ag.to;
-        ag.targetedAnimations.forEach(ta => {
-            // Find the corresponding node in the cloned model
-            const targetNode = clonedModel.getChildTransformNodes(true).find(n => n.name === ta.target.name);
-            if (targetNode) {
-                const clonedAnimation = ta.animation.clone();
-                console.log(ta.target.name);
-                clonedAG.addTargetedAnimation(clonedAnimation, targetNode);
+        const clonedAG = ag.clone(
+            `player_${playerId}_${ag.name}`,
+            (oldTarget) => {
+                return clonedModel.getChildTransformNodes(true).find(n => n.name === oldTarget.name) || clonedModel;
             }
-        });
-        // Store the cloned animation group under a lowercased key
+        );
+
+        console.log(`Cloned animation for player ${playerId}:`, clonedAG.name);
+
         clonedAnimations[ag.name.toLowerCase()] = clonedAG;
     });
+
 
     // Initialize with idle animation (looping)
     if (clonedAnimations["idle"]) {
