@@ -317,6 +317,8 @@ const createScene = async () => {
             direction = "reverseleft";t
         } else if (!keyMap["w"] && keyMap["s"] && !keyMap["a"] && keyMap["d"]) {
             direction = "reverseright"; 
+        } else{
+            direction = "idle";
         }
         
         if (window.network && player) {
