@@ -88,6 +88,15 @@ scene.onBeforeRenderObservable.add(() => {
 window.handleOtherPlayerShoot = async function(data) {
     let remote = remotePlayers[data.id];
     
+    let animationToPlay = getMovementAnimation("shoot");
+    if (remote && remote.currentAnimation !== animationToPlay) {
+        Object.values(remote.animations).forEach(anim => anim.stop());
+        if (remote.animations[animationToPlay]) {
+            remote.animations[animationToPlay].start(true);
+            remote.currentAnimation = animationToPlay;
+        }
+    }
+
     var bullet = await add3d("assets/bullet.glb");
     bullet.isVisible = false;
     bullet.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
@@ -120,15 +129,6 @@ window.handleOtherPlayerShoot = async function(data) {
     bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
     
     bullet.isVisible = true;
-    
-    let animationToPlay = getMovementAnimation("shoot");
-    if (remote && remote.currentAnimation !== animationToPlay) {
-        Object.values(remote.animations).forEach(anim => anim.stop());
-        if (remote.animations[animationToPlay]) {
-            remote.animations[animationToPlay].start(true);
-            remote.currentAnimation = animationToPlay;
-        }
-    }
 };
 
 
