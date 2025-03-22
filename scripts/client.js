@@ -54,6 +54,7 @@ async function startGame(){
             animations[ag.name.toLowerCase()] = ag;
         });
 
+        // Set the default animation (idle)
         if (animations["idle"]) animations["idle"].start(true);
 
         assetsLoaded = true;
@@ -79,11 +80,11 @@ function createRemotePlayer(playerId, position) {
         lastPosition: clonedModel.position.clone(),
         velocity: new BABYLON.Vector3(0, 0, 0), // Initial velocity
         lastUpdateTime: Date.now(), // Track last update time for smooth transition
+        currentAnimation: "idle", // Start with idle animation
     };
 
-    if (animations["idle"]) {
-        animations["idle"].start(true);
-    }
+    // Set the default animation (idle)
+    if (animations["idle"]) animations["idle"].start(true);
 }
 
 // Function to handle player movement and animations
@@ -107,7 +108,7 @@ window.handleOtherPlayerMovement = function(data) {
         let remote = remotePlayers[data.id];
         let model = remote.model;
         let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
-        
+
         // Interpolation to smooth out movement
         let deltaTime = currentTime - remote.lastUpdateTime;
         remote.velocity = newPos.subtract(remote.lastPosition).scale(1 / deltaTime); // Calculate velocity
@@ -119,7 +120,7 @@ window.handleOtherPlayerMovement = function(data) {
         if (data.rotationData) {
             const dir = new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z);
             const yaw = Math.atan2(dir.x, dir.z);
-        
+
             model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }           
 
@@ -134,7 +135,7 @@ window.handleOtherPlayerMovement = function(data) {
         if (remote.velocity.length() > 0.1) {
             // Debugging: Output the movement direction for debugging purposes
             console.log("Movement Direction:", movementDir);
-            
+
             // Determine animation based on movement direction
             if (Math.abs(movementDir.z) > Math.abs(movementDir.x)) {
                 animationToPlay = movementDir.z > 0 ? "run" : "run_back";
@@ -146,7 +147,9 @@ window.handleOtherPlayerMovement = function(data) {
         // Check if the selected animation is already playing
         if (remote.currentAnimation !== animationToPlay) {
             // Stop the current animation (if any) and start the new one
-            Object.values(remote.animations).forEach(anim => anim.stop());
+            if (remote.animations[remote.currentAnimation]) {
+                remote.animations[remote.currentAnimation].stop();
+            }
             if (remote.animations[animationToPlay]) {
                 remote.animations[animationToPlay].start(true);
                 remote.currentAnimation = animationToPlay;
