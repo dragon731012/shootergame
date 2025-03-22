@@ -76,7 +76,7 @@ function createRemotePlayer(playerId, position) {
             remoteModelHitbox.position = new BABYLON.Vector3(0,1,0);
             remoteModelHitbox.name = playerId;
             remoteModelHitbox.isVisible = true;
-            remoteModelHitbox.position=remoteModel.getAbsolutePosition();
+            remoteModelHitbox.parent = remoteModel;
 
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
 
@@ -89,7 +89,6 @@ function createRemotePlayer(playerId, position) {
 
             remotePlayers[playerId] = {
                 model: remoteModel,
-                hitbox: remoteModelHitbox,
                 animations: remoteAnimations,
                 startPosition: position.clone(),
                 targetPosition: position.clone(),
@@ -113,7 +112,6 @@ scene.onBeforeRenderObservable.add(() => {
         const elapsed = now - remote.interpolationStartTime;
         const t = Math.min(elapsed / 100, 1);
         remote.model.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
-        remote.hitbox.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
     }
 });
 
