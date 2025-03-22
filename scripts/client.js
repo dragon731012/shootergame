@@ -150,11 +150,11 @@ function getMovementAnimation(direction) {
     console.log(`Received direction: ${direction}`);
     let animationMap = {
         "forward": "run",
-        "forwardleft": "run",
-        "forwardright": "run",
+        "forwardleft": "run_right",
+        "forwardright": "run_left",
         "backward": "run_back",
-        "backwardleft": "run_back",
-        "backwardright": "run_back",
+        "backwardleft": "run_right",
+        "backwardright": "run_left",
         "right": "run_left",
         "left": "run_right",
         "idle": "idle"
