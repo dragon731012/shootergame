@@ -30,10 +30,11 @@ window.network = {
             direction: direction
         });
     },
-    sendShootEvent: function(gunPosition, direction) {
+    sendShootEvent: function(gunPosition, direction, moving) {
         socket.emit('shoot', { 
             position: gunPosition, 
-            direction: { x: direction.x, y: direction.y, z: direction.z } 
+            direction: { x: direction.x, y: direction.y, z: direction.z },
+            moving: moving
         });
     }
 };
@@ -88,7 +89,12 @@ scene.onBeforeRenderObservable.add(() => {
 window.handleOtherPlayerShoot = async function(data) {
     let remote = remotePlayers[data.id];
     
-    let animationToPlay = getMovementAnimation("shoot");
+    let animationToPlay;
+    if (data.moving){
+        animationToPlay = getMovementAnimation("shoot");
+    } else {
+        animationToPlay = getMovementAnimation("movingshoot");
+    }
     if (remote && remote.currentAnimation !== animationToPlay) {
         Object.values(remote.animations).forEach(anim => anim.stop());
         if (remote.animations[animationToPlay]) {
@@ -127,6 +133,7 @@ window.handleOtherPlayerShoot = async function(data) {
     bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) });
     
     const shootForce = 1;
+
     bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
     
     bullet.isVisible = true;
@@ -193,7 +200,8 @@ function getMovementAnimation(direction) {
         "right": "run_left",
         "left": "run_right",
         "idle": "idle",
-        "shoot": "gun_shoot"
+        "shoot": "gun_shoot",
+        "movingshoot": "run_rhoot"
     };
     let animationToPlay = animationMap[direction] || "idle";
     return animationToPlay;
