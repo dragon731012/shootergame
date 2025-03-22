@@ -181,7 +181,7 @@ const createScene = async () => {
 
         onCollisionStart(bullet,(e)=>{
             var name=e.collidedAgainst.transformNode.name;
-            if (remotePlayers.includes(name)) window.network.sendDamageEvent(name,userid,guns[currentgun].damage);
+            if (remotePlayers[name]) window.network.sendDamageEvent(name,userid,guns[currentgun].damage);
             if (name!="player") bullet.dispose();
         });
     }
