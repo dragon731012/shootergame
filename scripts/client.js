@@ -147,6 +147,7 @@ window.handleOtherPlayerMovement = function(data) {
         }
 
         let animationToPlay=getMovementAnimation(data.direction);
+        console.log(data.direction);
 
         if (remote.currentAnimation !== animationToPlay) {
             Object.values(remote.animations).forEach(anim => anim.stop());
