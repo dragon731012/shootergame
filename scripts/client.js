@@ -76,6 +76,8 @@ function createRemotePlayer(playerId, position) {
                 const animName = ag.name.toLowerCase();
                 if (!allowedAnims.includes(animName)) return; // Skip unwanted animations
 
+                console.log("loaded animation "+animName);
+
                 // Create a new animation group for this remote player.
                 let newAnimGroup = new BABYLON.AnimationGroup(`player_${playerId}_${animName}`, scene);
                 newAnimGroup.from = ag.from;
