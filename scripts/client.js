@@ -91,7 +91,6 @@ window.handleOtherPlayerShoot = async function(data) {
     
     let animationToPlay;
 
-    console.log(data.moving);
     if (data.moving){
         animationToPlay = getMovementAnimation("shoot");
     } else {
