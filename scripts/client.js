@@ -50,7 +50,13 @@ function createRemotePlayer(playerId, position) {
 
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene)
         .then(result => {
-            // Choose the root mesh – adjust this if your glTF uses a different naming convention.
+            // Stop all imported animation groups immediately.
+            result.animationGroups.forEach(ag => ag.stop());
+            
+            // Log all animation group names for debugging.
+            console.log("Imported animation groups:", result.animationGroups.map(ag => ag.name));
+
+            // Choose the root mesh – adjust if your glTF uses a different naming convention.
             let remoteModel = result.meshes.find(mesh => mesh.name.toLowerCase() === "player");
             if (!remoteModel) {
                 remoteModel = result.meshes[0];
@@ -69,14 +75,12 @@ function createRemotePlayer(playerId, position) {
                 remoteModel.rotationQuaternion = BABYLON.Quaternion.Identity();
             }
 
-            // Build animations for allowed names.
+            // Build animations only for allowed names.
             let allowedAnims = ["idle", "run", "run_back", "run_left", "run_right"];
             let remoteAnimations = {};
             result.animationGroups.forEach(ag => {
                 const animName = ag.name.toLowerCase();
                 if (!allowedAnims.includes(animName)) return; // Skip unwanted animations
-
-                console.log("loaded animation "+animName);
 
                 // Create a new animation group for this remote player.
                 let newAnimGroup = new BABYLON.AnimationGroup(`player_${playerId}_${animName}`, scene);
@@ -102,6 +106,9 @@ function createRemotePlayer(playerId, position) {
                 remoteAnimations[animName] = newAnimGroup;
             });
 
+            // For debugging, log the available animations for this remote player.
+            console.log(`Available animations for player ${playerId}:`, Object.keys(remoteAnimations));
+
             // Start idle animation by default, if available.
             if (remoteAnimations["idle"]) {
                 remoteAnimations["idle"].start(true, 1.0, remoteAnimations["idle"].from, remoteAnimations["idle"].to, true);
@@ -123,6 +130,7 @@ function createRemotePlayer(playerId, position) {
             delete remotePlayers[playerId]; // Remove placeholder if error occurs.
         });
 }
+
 
 // Render loop for smooth interpolation of remote players.
 scene.onBeforeRenderObservable.add(() => {
