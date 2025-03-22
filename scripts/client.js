@@ -93,6 +93,8 @@ scene.onBeforeRenderObservable.add(() => {
  * Prevents processing data too frequently and creates a new remote player if needed.
  */
 window.handleOtherPlayerMovement = function(data) {
+    data.movementData.y-=2;
+
     const currentTime = Date.now();
     if (currentTime - (remotePlayers[data.id]?.lastUpdateTime || 0) < 100) return;
 
@@ -103,7 +105,7 @@ window.handleOtherPlayerMovement = function(data) {
 
     const newPos = new BABYLON.Vector3(
         data.movementData.x,
-        data.movementData.y-0.5,
+        data.movementData.y,
         data.movementData.z
     );
 
