@@ -55,7 +55,7 @@ function createRemotePlayer(playerId, position) {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
             });
     
-            if (animations["idle"]) animations["idle"].start(true);
+            if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
 
             remotePlayers[playerId] = {
                 model: remoteModel,
