@@ -124,7 +124,7 @@ window.handleOtherPlayerMovement = function(data) {
                 data.rotationData.y,
                 data.rotationData.z
             );
-            const yaw = Math.atan2(-dir.x, dir.x);
+            const yaw = Math.atan2(-dir.x, dir.z);
             remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }
 
