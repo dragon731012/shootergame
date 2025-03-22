@@ -54,6 +54,7 @@ async function startGame(){
         });
 
         assetsLoaded = true;
+        console.log("Model and animations loaded successfully.");
     } catch (error) {
         console.error("Error loading model:", error);
     }
@@ -70,19 +71,18 @@ function createRemotePlayer(playerId, position) {
     // Clone animation groups for this player
     const clonedAnimations = {};
     originalAnimations.forEach(ag => {
-        const clonedAG = new BABYLON.AnimationGroup(`player_${playerId}_${ag.name}`, scene);
-        ag.targetedAnimations.forEach(ta => {
-            const targetNode = clonedModel.getChildTransformNodes(true).find(n => n.name === ta.target.name);
-            if (targetNode) {
-                const clonedAnimation = ta.animation.clone();
-                clonedAG.addTargetedAnimation(clonedAnimation, targetNode);
-            }
+        const clonedAG = ag.clone(`player_${playerId}_${ag.name}`, (target) => {
+            // Find the corresponding node in the cloned model
+            return clonedModel.getChildTransformNodes(true).find(n => n.name === target.name);
         });
         clonedAnimations[ag.name.toLowerCase()] = clonedAG;
     });
 
     // Initialize with idle animation
-    if (clonedAnimations["idle"]) clonedAnimations["idle"].start(true);
+    if (clonedAnimations["idle"]) {
+        clonedAnimations["idle"].start(true);
+        console.log(`Started idle animation for player ${playerId}`);
+    }
 
     remotePlayers[playerId] = {
         model: clonedModel,
@@ -151,10 +151,13 @@ window.handleOtherPlayerMovement = function(data) {
             getMovementAnimation(movementDelta.normalize()) : "idle";
 
         if (remote.currentAnimation !== animationToPlay) {
+            console.log(`Changing animation for player ${data.id} to ${animationToPlay}`);
             Object.values(remote.animations).forEach(anim => anim.stop());
             if (remote.animations[animationToPlay]) {
                 remote.animations[animationToPlay].start(true);
                 remote.currentAnimation = animationToPlay;
+            } else {
+                console.warn(`Animation ${animationToPlay} not found for player ${data.id}`);
             }
         }
     }
