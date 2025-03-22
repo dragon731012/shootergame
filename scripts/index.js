@@ -172,9 +172,8 @@ const createScene = async () => {
         window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection);
 
         onCollisionStart(bullet,(e)=>{
-            console.log(e.collidedAgainst.transformNode);
-            console.log(e.collider.transformNode);
-
+            console.log(e.collidedAgainst.transformNode.name);
+            console.log(e.collider.transformNode.name);
         });
     }
 
