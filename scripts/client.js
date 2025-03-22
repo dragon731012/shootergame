@@ -51,7 +51,7 @@ function createRemotePlayer(playerId, position) {
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene)
         .then(result => {
             let remoteModel=result.meshes[0];
-            remoteModel.scaling = new BABYLON.Vector3(1.4, 1.4, 1.4);
+            remoteModel.scaling = new BABYLON.Vector3(1.3, 1.3, 1.3);
             let remoteAnimations={};
             result.animationGroups.forEach(ag => {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
