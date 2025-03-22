@@ -40,7 +40,6 @@ let lastUpdate = 0;
 const UPDATE_INTERVAL = 100; // Update every 100ms (10 FPS)
 let assetsLoaded = false; // Ensure the model is loaded before usage
 let animations = {}; // Store animations
-let interpolationBuffer = {}; // Buffer for smooth interpolation
 
 // Function to load the player model once
 async function startGame(){
@@ -78,8 +77,8 @@ function createRemotePlayer(playerId, position) {
         model: clonedModel,
         animations: animations,
         lastPosition: clonedModel.position.clone(),
-        lastRotation: clonedModel.rotationQuaternion.clone(),
-        currentAnimation: "idle"
+        velocity: new BABYLON.Vector3(0, 0, 0), // Initial velocity
+        lastUpdateTime: Date.now(), // Track last update time for smooth transition
     };
 
     if (animations["idle"]) {
@@ -107,42 +106,35 @@ window.handleOtherPlayerMovement = function(data) {
     } else {
         let remote = remotePlayers[data.id];
         let model = remote.model;
-
-        // Smooth movement using interpolation
         let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
-        let newRotation = data.rotationData ? new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z) : remote.lastRotation;
-
-        // Interpolate between the current and new positions
-        if (!interpolationBuffer[data.id]) {
-            interpolationBuffer[data.id] = {
-                startPos: remote.lastPosition.clone(),
-                endPos: newPos,
-                startTime: currentTime
-            };
-        } else {
-            interpolationBuffer[data.id].endPos = newPos;
-            interpolationBuffer[data.id].startTime = currentTime;
-        }
-
-        // Interpolate position
-        let interpolationData = interpolationBuffer[data.id];
-        let progress = (currentTime - interpolationData.startTime) / UPDATE_INTERVAL;
-        if (progress > 1) progress = 1; // Cap the progress
-        model.position = BABYLON.Vector3.Lerp(interpolationData.startPos, interpolationData.endPos, progress);
-
-        // Interpolate rotation
-        let yaw = Math.atan2(newRotation.x, newRotation.z);
-        model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
-
-        // Update remote player data
-        remote.lastPosition = model.position.clone();
-        remote.lastRotation = model.rotationQuaternion.clone();
         
-        let movementDir = new BABYLON.Vector3(newPos.x - remote.lastPosition.x, 0, newPos.z - remote.lastPosition.z).normalize();
+        // Interpolation to smooth out movement
+        let deltaTime = currentTime - remote.lastUpdateTime;
+        remote.velocity = newPos.subtract(remote.lastPosition).scale(1 / deltaTime); // Calculate velocity
+        remote.lastPosition.copyFrom(newPos);
+        remote.lastUpdateTime = currentTime;
 
-        // Determine which animation to play
+        model.position.addInPlace(remote.velocity.scale(deltaTime)); // Smooth transition
+
+        if (data.rotationData) {
+            const dir = new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z);
+            const yaw = Math.atan2(dir.x, dir.z);
+        
+            model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
+        }           
+
+        // Determine which animation to play based on movement direction
+        let movementDir = new BABYLON.Vector3(
+            newPos.x - remote.lastPosition.x,
+            0,
+            newPos.z - remote.lastPosition.z
+        ).normalize();
+
         let animationToPlay = "idle"; // Default to idle
-        if (movementDir.length() > 0.1) {
+        if (remote.velocity.length() > 0.1) {
+            // Debugging: Output the movement direction for debugging purposes
+            console.log("Movement Direction:", movementDir);
+            
             // Determine animation based on movement direction
             if (Math.abs(movementDir.z) > Math.abs(movementDir.x)) {
                 animationToPlay = movementDir.z > 0 ? "run" : "run_back";
