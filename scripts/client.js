@@ -172,8 +172,7 @@ window.handleOtherPlayerShoot = async function(data) {
 
     onCollisionStart(bullet,(e)=>{
         var name=e.collidedAgainst.transformNode.name;
-        console.log(name);
-        if (name!="player") bullet.dispose();
+        if (name!=userid) bullet.dispose();
     });
 };
 
