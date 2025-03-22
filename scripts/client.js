@@ -179,7 +179,7 @@ window.handleOtherPlayerMovement = function(data) {
         let animationToPlay = getMovementAnimation(data.direction);
 
         console.log("direction: "+data.direction,"animation:"+animationToPlay);
-        
+
         if (remote.currentAnimation !== animationToPlay) {
             // Stop all animations.
             Object.values(remote.animations).forEach(anim => anim.stop());
@@ -198,17 +198,17 @@ window.handleOtherPlayerMovement = function(data) {
 function getMovementAnimation(direction) {
     console.log(`Received direction: ${direction}`);
     let animationMap = {
-        "forward": "Run",
-        "forwardleft": "Run",
-        "forwardright": "Run",
-        "backward": "Run_Back",
-        "backwardleft": "Run_Back",
-        "backwardright": "Run_Back",
-        "left": "Run_Left",
-        "right": "Run_Right",
-        "idle": "Idle"
+        "forward": "run",
+        "forwardleft": "run",
+        "forwardright": "run",
+        "backward": "run_back",
+        "backwardleft": "run_back",
+        "backwardright": "run_back",
+        "left": "run_left",
+        "right": "run_right",
+        "idle": "idle"
     };
-    let animationToPlay = animationMap[direction] || "Idle";
+    let animationToPlay = animationMap[direction] || "idle";
     return animationToPlay;
 }
 
