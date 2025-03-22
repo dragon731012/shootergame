@@ -110,7 +110,8 @@ window.handleOtherPlayerShoot = async function(data) {
 
     bullet.parent=remote.model;
 
-    bullet.position=new BABYLON.Vector3(0,1.2,1);
+    bullet.position=new BABYLON.Vector3(0.1,1.3,1);
+    bullet.rotation=new BABYLON.Vector3(Math.PI,0,0);
 
     // Detach bullet from remote player's model to move independently.
     bullet.setParent(null);
