@@ -1,5 +1,3 @@
-// client.js
-
 const socket = io('https://server.addmask.com'); // Replace with your actual server domain
 
 socket.on('connect', () => {
@@ -42,6 +40,7 @@ let lastUpdate = 0;
 const UPDATE_INTERVAL = 100; // Update every 100ms (10 FPS)
 let assetsLoaded = false; // Ensure the model is loaded before usage
 let animations = {}; // Store animations
+let interpolationBuffer = {}; // Buffer for smooth interpolation
 
 // Function to load the player model once
 async function startGame(){
@@ -78,7 +77,9 @@ function createRemotePlayer(playerId, position) {
     remotePlayers[playerId] = {
         model: clonedModel,
         animations: animations,
-        lastPosition: clonedModel.position.clone()
+        lastPosition: clonedModel.position.clone(),
+        lastRotation: clonedModel.rotationQuaternion.clone(),
+        currentAnimation: "idle"
     };
 
     if (animations["idle"]) {
@@ -86,13 +87,7 @@ function createRemotePlayer(playerId, position) {
     }
 }
 
-let smoothingFactor = 0.1;  // Smaller values = smoother movement
-let smoothingRotationFactor = 0.05; // Factor for rotation smoothing
-
-// Velocity-based movement approach
-let velocity = new BABYLON.Vector3(0, 0, 0); // Initial velocity
-let lastPosition = new BABYLON.Vector3(0, 0, 0); // Keep track of last position for velocity calculation
-
+// Function to handle player movement and animations
 window.handleOtherPlayerMovement = function(data) {
     const currentTime = Date.now();
     if (currentTime - lastUpdate < UPDATE_INTERVAL) return;
@@ -113,39 +108,42 @@ window.handleOtherPlayerMovement = function(data) {
         let remote = remotePlayers[data.id];
         let model = remote.model;
 
-        // Calculate velocity based on position difference
-        let targetPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
-        let distance = BABYLON.Vector3.Distance(model.position, targetPos);
-        let direction = targetPos.subtract(model.position).normalize();
-        
-        // Calculate velocity based on target position
-        velocity = direction.scale(distance * smoothingFactor);
+        // Smooth movement using interpolation
+        let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
+        let newRotation = data.rotationData ? new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z) : remote.lastRotation;
 
-        // Apply velocity-based movement (move over time)
-        model.position.addInPlace(velocity);
-
-        // Smooth rotation based on the movement direction
-        if (data.rotationData) {
-            const dir = new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z);
-            const yaw = Math.atan2(dir.x, dir.z);
-
-            // Smooth rotation using Slerp
-            let targetRotation = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
-            model.rotationQuaternion = BABYLON.Quaternion.Slerp(model.rotationQuaternion, targetRotation, smoothingRotationFactor);
+        // Interpolate between the current and new positions
+        if (!interpolationBuffer[data.id]) {
+            interpolationBuffer[data.id] = {
+                startPos: remote.lastPosition.clone(),
+                endPos: newPos,
+                startTime: currentTime
+            };
+        } else {
+            interpolationBuffer[data.id].endPos = newPos;
+            interpolationBuffer[data.id].startTime = currentTime;
         }
 
-        // Manage animations based on speed (if speed > threshold, move)
-        let speed = BABYLON.Vector3.Distance(remote.lastPosition, targetPos);
-        remote.lastPosition.copyFrom(targetPos);
+        // Interpolate position
+        let interpolationData = interpolationBuffer[data.id];
+        let progress = (currentTime - interpolationData.startTime) / UPDATE_INTERVAL;
+        if (progress > 1) progress = 1; // Cap the progress
+        model.position = BABYLON.Vector3.Lerp(interpolationData.startPos, interpolationData.endPos, progress);
 
-        let movementDir = new BABYLON.Vector3(
-            targetPos.x - remote.lastPosition.x,
-            0,
-            targetPos.z - remote.lastPosition.z
-        ).normalize();
+        // Interpolate rotation
+        let yaw = Math.atan2(newRotation.x, newRotation.z);
+        model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
 
-        let animationToPlay = "idle";
-        if (speed > 0.1) {
+        // Update remote player data
+        remote.lastPosition = model.position.clone();
+        remote.lastRotation = model.rotationQuaternion.clone();
+        
+        let movementDir = new BABYLON.Vector3(newPos.x - remote.lastPosition.x, 0, newPos.z - remote.lastPosition.z).normalize();
+
+        // Determine which animation to play
+        let animationToPlay = "idle"; // Default to idle
+        if (movementDir.length() > 0.1) {
+            // Determine animation based on movement direction
             if (Math.abs(movementDir.z) > Math.abs(movementDir.x)) {
                 animationToPlay = movementDir.z > 0 ? "run" : "run_back";
             } else {
@@ -153,7 +151,9 @@ window.handleOtherPlayerMovement = function(data) {
             }
         }
 
+        // Check if the selected animation is already playing
         if (remote.currentAnimation !== animationToPlay) {
+            // Stop the current animation (if any) and start the new one
             Object.values(remote.animations).forEach(anim => anim.stop());
             if (remote.animations[animationToPlay]) {
                 remote.animations[animationToPlay].start(true);
@@ -162,7 +162,6 @@ window.handleOtherPlayerMovement = function(data) {
         }
     }
 };
-
 
 // Function to handle player disconnection
 window.handlePlayerDisconnected = function(data) {
