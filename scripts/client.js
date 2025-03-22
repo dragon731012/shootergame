@@ -85,7 +85,7 @@ scene.onBeforeRenderObservable.add(() => {
     }
 });
 
-window.handleOtherPlayerShoot = function(data) {
+window.handleOtherPlayerShoot = async function(data) {
     var bullet = await add3d("assets/bullet.glb");
     bullet.isVisible = false;
     bullet.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
