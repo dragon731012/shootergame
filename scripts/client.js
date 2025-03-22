@@ -155,8 +155,8 @@ function getMovementAnimation(direction) {
         "backward": "run_back",
         "backwardleft": "run_back",
         "backwardright": "run_back",
-        "left": "run_left",
-        "right": "run_right",
+        "right": "run_left",
+        "left": "run_right",
         "idle": "idle"
     };
     let animationToPlay = animationMap[direction] || "idle";
