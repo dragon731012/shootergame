@@ -88,6 +88,7 @@ function createRemotePlayer(playerId, position) {
             const targetNode = clonedModel.getChildTransformNodes(true).find(n => n.name === ta.target.name);
             if (targetNode) {
                 const clonedAnimation = ta.animation.clone();
+                console.log(ta.target.name);
                 clonedAG.addTargetedAnimation(clonedAnimation, targetNode);
             }
         });
