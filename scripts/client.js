@@ -96,12 +96,17 @@ window.handleOtherPlayerShoot = async function(data) {
     bulletMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
     bullet.material = bulletMaterial;
 
-    bullet.parent=remote.model;
-    
+    // Initially set the bullet's position based on the received data.
     bullet.position.copyFrom(data.position);
     
+    // Create a bullet direction vector from the data.
     const bulletDirection = new BABYLON.Vector3(data.direction.x, data.direction.y, data.direction.z);
     
+    // Offset the bullet so it starts 0.5 units closer to the remote player.
+    // Adjust the offset value as necessary.
+    bullet.position.subtractInPlace(bulletDirection.scale(0.5));
+    
+    // Detach the bullet so it moves independently of the remote player's model.
     bullet.setParent(null);
     
     const bulletPhysics = new BABYLON.PhysicsAggregate(
