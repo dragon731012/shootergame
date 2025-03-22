@@ -71,7 +71,7 @@ function createRemotePlayer(playerId, position) {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
             });
     
-            remoteModelHitbox = BABYLON.MeshBuilder.CreateBox(playerId, { size: 1 }, scene);
+            let remoteModelHitbox = BABYLON.MeshBuilder.CreateBox(playerId, { size: 1 }, scene);
             remoteModelHitbox.scaling = new BABYLON.Vector3(1.2, 2, 1.2);
             remoteModelHitbox.position = new BABYLON.Vector3(0,1,0);
             remoteModelHitbox.name = playerId;
@@ -80,12 +80,16 @@ function createRemotePlayer(playerId, position) {
 
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
 
-            new BABYLON.PhysicsImpostor(
+            var imposter=new BABYLON.PhysicsImpostor(
                 remoteModelHitbox, 
                 BABYLON.PhysicsImpostor.BoxImpostor, 
                 { mass: 0 }, 
                 scene
             );
+
+            setInterval(() => {
+                imposter.forceUpdate();
+            }, 15);
             
 
             remotePlayers[playerId] = {
