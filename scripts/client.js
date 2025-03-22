@@ -144,9 +144,10 @@ window.handleOtherPlayerShoot = async function(data) {
     bullet.isVisible = true;
 
     onCollisionStart(bullet,(e)=>{
-        console.log(e.collidedAgainst.transformNode.name);
-        bullet.dispose();
-    },);
+        var name=e.collidedAgainst.transformNode.name;
+        console.log(name);
+        if (name!="player") bullet.dispose();
+    });
 };
 
 window.handleOtherPlayerMovement = function(data) {
