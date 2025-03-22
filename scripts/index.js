@@ -170,7 +170,7 @@ const createScene = async () => {
 
         window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection);
 
-        mesh.onCollideObservable.add((collidedMesh) => {
+        bullet.onCollideObservable.add((collidedMesh) => {
             console.debug(`collided with mesh: ${collidedMesh.name}`);
         });        
     }

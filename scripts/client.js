@@ -135,7 +135,7 @@ window.handleOtherPlayerShoot = async function(data) {
     
     bullet.isVisible = true;
 
-    mesh.onCollideObservable.add((collidedMesh) => {
+    bullet.onCollideObservable.add((collidedMesh) => {
         console.debug(`collided with mesh: ${collidedMesh.name}`);
     });    
 };
