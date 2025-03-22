@@ -94,22 +94,7 @@ function Explode(item,size,length)
 function onCollisionStart(mesh,callback){
     mesh.physicsBody.setCollisionCallbackEnabled(true);
 
-    const hk = physicsPlugin;
-    const started = hk._hknp.EventType.COLLISION_STARTED.value;
-    const continued = hk._hknp.EventType.COLLISION_CONTINUED.value;
-    const finished = hk._hknp.EventType.COLLISION_FINISHED.value;
-    
-    const eventMask = started | continued | finished;
-    mesh.physicsBody.setEventMask(eventMask);
-
-    const observable = mesh.physicsBody.getCollisionObservable();
-    observable.add((collisionEvent) => {
-        callback(collisionEvent);
-    });
-}
-
-function onCollisionEnd(mesh,callback){
-    mesh.physicsBody?.onContactEnd((event) => {
-        callback(event);
+    mesh.physicsImpostor.registerOnPhysicsCollide(null, function (collider) {
+        callback(collider);
     });
 }
