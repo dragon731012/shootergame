@@ -76,19 +76,20 @@ function createRemotePlayer(playerId, position) {
             remoteModelHitbox.position = new BABYLON.Vector3(0,1,0);
             remoteModelHitbox.name = playerId;
             remoteModelHitbox.isVisible = true;
-            remoteModelHitbox.parent=remoteModel;
+            remoteModelHitbox.position=remoteModel.getAbsolutePosition();
 
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
 
             new BABYLON.PhysicsAggregate(
                 remoteModelHitbox,
                 BABYLON.PhysicsShapeType.BOX,
-                { mass: 0.1},
+                { mass: 0},
                 scene
             );
 
             remotePlayers[playerId] = {
                 model: remoteModel,
+                hitbox: remoteModelHitbox,
                 animations: remoteAnimations,
                 startPosition: position.clone(),
                 targetPosition: position.clone(),
@@ -192,6 +193,8 @@ window.handleOtherPlayerMovement = function(data) {
         data.movementData.y,
         data.movementData.z
     );
+
+    remotePlayers[data.id].hitbox.position=remotePlayers[data.id].model.getAbsolutePosition();
 
     if (!remotePlayers[data.id] || remotePlayers[data.id].loading) {
         createRemotePlayer(data.id, newPos);
