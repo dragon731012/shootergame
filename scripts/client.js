@@ -33,29 +33,25 @@ window.network = {
     }
 };
 
-let remotePlayers = {};  // Store player models here
-let recentlyDisconnected = {}; // Track recently disconnected players
-let playerModel; // Store the loaded player model for cloning
-let lastUpdate = 0;
-const UPDATE_INTERVAL = 100; // Update every 100ms (10 FPS)
-let assetsLoaded = false; // Ensure the model is loaded before usage
-let animations = {}; // Store animations
+let remotePlayers = {}; 
+let recentlyDisconnected = {};
+let playerModel;
+let originalAnimations = []; // Store original animation groups
+let assetsLoaded = false;
 
 // Function to load the player model once
 async function startGame(){
     try {
         let result = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene);
         playerModel = result.meshes[0];
-        playerModel.isVisible = false; // Make sure it isn't visible initially
-        playerModel.scaling = new BABYLON.Vector3(1, 1, 1); // Scale the model to an appropriate size
+        playerModel.isVisible = false;
+        playerModel.scaling = new BABYLON.Vector3(1, 1, 1);
 
-        // Assign animations to the model
+        // Store original animations
         result.animationGroups.forEach(ag => {
-            animations[ag.name.toLowerCase()] = ag;
+            originalAnimations.push(ag);
+            ag.stop(); // Stop original animations
         });
-
-        // Set the default animation (idle)
-        if (animations["idle"]) animations["idle"].start(true);
 
         assetsLoaded = true;
     } catch (error) {
@@ -65,91 +61,97 @@ async function startGame(){
 
 // Function to create and clone the model for a remote player
 function createRemotePlayer(playerId, position) {
-    if (!assetsLoaded) {
-        console.error("Model assets are not loaded yet.");
-        return;
-    }
+    if (!assetsLoaded) return;
 
     let clonedModel = playerModel.clone("player_" + playerId);
-    clonedModel.position = position;
+    clonedModel.position.copyFrom(position);
     clonedModel.isVisible = true;
+
+    // Clone animation groups for this player
+    const clonedAnimations = {};
+    originalAnimations.forEach(ag => {
+        const clonedAG = new BABYLON.AnimationGroup(`player_${playerId}_${ag.name}`, scene);
+        ag.targetedAnimations.forEach(ta => {
+            const targetNode = clonedModel.getChildTransformNodes(true).find(n => n.name === ta.target.name);
+            if (targetNode) {
+                const clonedAnimation = ta.animation.clone();
+                clonedAG.addTargetedAnimation(clonedAnimation, targetNode);
+            }
+        });
+        clonedAnimations[ag.name.toLowerCase()] = clonedAG;
+    });
+
+    // Initialize with idle animation
+    if (clonedAnimations["idle"]) clonedAnimations["idle"].start(true);
 
     remotePlayers[playerId] = {
         model: clonedModel,
-        animations: animations,
-        lastPosition: clonedModel.position.clone(),
-        velocity: new BABYLON.Vector3(0, 0, 0), // Initial velocity
-        lastUpdateTime: Date.now(), // Track last update time for smooth transition
-        currentAnimation: "idle", // Start with idle animation
+        animations: clonedAnimations,
+        startPosition: position.clone(),
+        targetPosition: position.clone(),
+        interpolationStartTime: Date.now(),
+        currentAnimation: "idle"
     };
-
-    // Set the default animation (idle)
-    if (animations["idle"]) animations["idle"].start(true);
 }
 
-// Function to handle player movement and animations
+// Render loop for smooth interpolation
+scene.onBeforeRenderObservable.add(() => {
+    const now = Date.now();
+    for (const playerId in remotePlayers) {
+        const remote = remotePlayers[playerId];
+        const elapsed = now - remote.interpolationStartTime;
+        const t = Math.min(elapsed / 100, 1);
+        remote.model.position = BABYLON.Vector3.Lerp(
+            remote.startPosition, 
+            remote.targetPosition, 
+            t
+        );
+    }
+});
+
+// Updated movement handler
 window.handleOtherPlayerMovement = function(data) {
     const currentTime = Date.now();
-    if (currentTime - lastUpdate < UPDATE_INTERVAL) return;
-    lastUpdate = currentTime;
+    if (currentTime - (remotePlayers[data.id]?.lastUpdateTime || 0) < 100) return;
 
     if (recentlyDisconnected[data.id]) {
-        const elapsed = Date.now() - recentlyDisconnected[data.id];
-        if (elapsed < 1000) {
-            return;
-        } else {
-            delete recentlyDisconnected[data.id];
-        }
+        if (Date.now() - recentlyDisconnected[data.id] < 1000) return;
+        delete recentlyDisconnected[data.id];
     }
 
-    if (!remotePlayers[data.id]) {
-        createRemotePlayer(data.id, new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z));
-    } else {
-        let remote = remotePlayers[data.id];
-        let model = remote.model;
-        let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
+    const newPos = new BABYLON.Vector3(
+        data.movementData.x,
+        data.movementData.y,
+        data.movementData.z
+    );
 
-        // Interpolation to smooth out movement
-        let deltaTime = currentTime - remote.lastUpdateTime;
-        remote.velocity = newPos.subtract(remote.lastPosition).scale(1 / deltaTime); // Calculate velocity
-        remote.lastPosition.copyFrom(newPos);
+    if (!remotePlayers[data.id]) {
+        createRemotePlayer(data.id, newPos);
+    } else {
+        const remote = remotePlayers[data.id];
+        remote.startPosition.copyFrom(remote.model.position);
+        remote.targetPosition.copyFrom(newPos);
+        remote.interpolationStartTime = currentTime;
         remote.lastUpdateTime = currentTime;
 
-        model.position.addInPlace(remote.velocity.scale(deltaTime)); // Smooth transition
-
+        // Handle rotation
         if (data.rotationData) {
-            const dir = new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z);
+            const dir = new BABYLON.Vector3(
+                data.rotationData.x,
+                data.rotationData.y,
+                data.rotationData.z
+            );
             const yaw = Math.atan2(dir.x, dir.z);
-
-            model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
-        }           
-
-        // Determine which animation to play based on movement direction
-        let movementDir = new BABYLON.Vector3(
-            newPos.x - remote.lastPosition.x,
-            0,
-            newPos.z - remote.lastPosition.z
-        ).normalize();
-
-        let animationToPlay = "idle"; // Default to idle
-        if (remote.velocity.length() > 0.1) {
-            // Debugging: Output the movement direction for debugging purposes
-            console.log("Movement Direction:", movementDir);
-
-            // Determine animation based on movement direction
-            if (Math.abs(movementDir.z) > Math.abs(movementDir.x)) {
-                animationToPlay = movementDir.z > 0 ? "run" : "run_back";
-            } else {
-                animationToPlay = movementDir.x > 0 ? "run_right" : "run_left";
-            }
+            remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }
 
-        // Check if the selected animation is already playing
+        // Determine animation
+        const movementDelta = newPos.subtract(remote.startPosition);
+        const animationToPlay = movementDelta.length() > 0.1 ? 
+            getMovementAnimation(movementDelta.normalize()) : "idle";
+
         if (remote.currentAnimation !== animationToPlay) {
-            // Stop the current animation (if any) and start the new one
-            if (remote.animations[remote.currentAnimation]) {
-                remote.animations[remote.currentAnimation].stop();
-            }
+            Object.values(remote.animations).forEach(anim => anim.stop());
             if (remote.animations[animationToPlay]) {
                 remote.animations[animationToPlay].start(true);
                 remote.currentAnimation = animationToPlay;
@@ -158,7 +160,13 @@ window.handleOtherPlayerMovement = function(data) {
     }
 };
 
-// Function to handle player disconnection
+function getMovementAnimation(direction) {
+    if (Math.abs(direction.z) > Math.abs(direction.x)) {
+        return direction.z > 0 ? "run" : "run_back";
+    }
+    return direction.x > 0 ? "run_right" : "run_left";
+}
+
 window.handlePlayerDisconnected = function(data) {
     if (remotePlayers[data.id]) {
         remotePlayers[data.id].model.dispose();
