@@ -101,7 +101,7 @@ window.handleOtherPlayerShoot = async function(data) {
 
     // Compute an offset relative to the remote player's model.
     // We'll take the remote model's forward vector and compute a right vector from it.
-    let forward = BABYLON.Vector3.TransformNormal(new BABYLON.Vector3(0, 0, 1), remote.model.getWorldMatrix()).normalize();
+    let forward = BABYLON.Vector3.TransformNormal(new BABYLON.Vector3(1, 0, 0), remote.model.getWorldMatrix()).normalize();
     let right = BABYLON.Vector3.Cross(BABYLON.Axis.Y, forward).normalize();
     
     // Define offset values: a small backward offset and a sideways offset.
