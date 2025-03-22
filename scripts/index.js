@@ -314,9 +314,9 @@ const createScene = async () => {
         } else if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && keyMap["d"]) {
             direction = "forwardright"; 
         } else if (!keyMap["w"] && keyMap["s"] && keyMap["a"] && !keyMap["d"]) {
-            direction = "reverseleft";
+            direction = "backwardleft";
         } else if (!keyMap["w"] && keyMap["s"] && !keyMap["a"] && keyMap["d"]) {
-            direction = "reverseright"; 
+            direction = "backwardright"; 
         } else{
             direction = "idle";
         }
