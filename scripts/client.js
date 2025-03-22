@@ -95,9 +95,9 @@ function createRemotePlayer(playerId, position) {
         clonedAnimations[ag.name.toLowerCase()] = clonedAG;
     });
 
-    // Initialize with idle animation
+    // Initialize with idle animation (looping)
     if (clonedAnimations["idle"]) {
-        clonedAnimations["idle"].start(true, 1.0, clonedAnimations["idle"].from, clonedAnimations["idle"].to, false);
+        clonedAnimations["idle"].start(true, 1.0, clonedAnimations["idle"].from, clonedAnimations["idle"].to, true); // Loop idle
     }
 
     remotePlayers[playerId] = {
@@ -170,7 +170,8 @@ window.handleOtherPlayerMovement = function(data) {
             Object.values(remote.animations).forEach(anim => anim.stop());
             // Start the new animation if available
             if (remote.animations[animationToPlay]) {
-                remote.animations[animationToPlay].start(true, 1.0, remote.animations[animationToPlay].from, remote.animations[animationToPlay].to, false);
+                const isLooping = ["idle", "run", "run_back", "run_left", "run_right"].includes(animationToPlay);
+                remote.animations[animationToPlay].start(true, 1.0, remote.animations[animationToPlay].from, remote.animations[animationToPlay].to, isLooping);
                 remote.currentAnimation = animationToPlay;
             }
         }
