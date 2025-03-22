@@ -164,6 +164,7 @@ function getMovementAnimation(direction) {
     if (direction=="backward" || direction=="backwardleft" || direction=="backwardright") return "run_back";
     if (direction=="left") return "run_left";
     if (direction=="right") return "run_right";
+    if (direction=="idle") return "idle";
 }
 
 window.handlePlayerDisconnected = function(data) {
