@@ -86,7 +86,12 @@ function createRemotePlayer(playerId, position) {
     }
 }
 
-let smoothingFactor = 0.1; // Adjust this for smoother (lower) or more immediate (higher) transitions
+let smoothingFactor = 0.1;  // Smaller values = smoother movement
+let smoothingRotationFactor = 0.05; // Factor for rotation smoothing
+
+// Velocity-based movement approach
+let velocity = new BABYLON.Vector3(0, 0, 0); // Initial velocity
+let lastPosition = new BABYLON.Vector3(0, 0, 0); // Keep track of last position for velocity calculation
 
 window.handleOtherPlayerMovement = function(data) {
     const currentTime = Date.now();
@@ -108,31 +113,35 @@ window.handleOtherPlayerMovement = function(data) {
         let remote = remotePlayers[data.id];
         let model = remote.model;
 
-        // Interpolating position using Lerp for smooth movement
+        // Calculate velocity based on position difference
         let targetPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
-        // Lerp using delta time to smooth the transition
-        model.position = BABYLON.Vector3.Lerp(model.position, targetPos, smoothingFactor);
+        let distance = BABYLON.Vector3.Distance(model.position, targetPos);
+        let direction = targetPos.subtract(model.position).normalize();
+        
+        // Calculate velocity based on target position
+        velocity = direction.scale(distance * smoothingFactor);
 
-        // Interpolating rotation using Slerp for smooth rotation
+        // Apply velocity-based movement (move over time)
+        model.position.addInPlace(velocity);
+
+        // Smooth rotation based on the movement direction
         if (data.rotationData) {
             const dir = new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z);
-            const yaw = Math.atan2(dir.x, dir.z); // Calculate yaw based on the direction vector
+            const yaw = Math.atan2(dir.x, dir.z);
 
-            // Create a target rotation quaternion
-            const targetRotation = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
-
-            // Smoothly interpolate rotation using Slerp with a time-based factor
-            model.rotationQuaternion = BABYLON.Quaternion.Slerp(model.rotationQuaternion, targetRotation, smoothingFactor);
+            // Smooth rotation using Slerp
+            let targetRotation = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
+            model.rotationQuaternion = BABYLON.Quaternion.Slerp(model.rotationQuaternion, targetRotation, smoothingRotationFactor);
         }
 
-        let newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
-        let speed = BABYLON.Vector3.Distance(remote.lastPosition, newPos);
-        remote.lastPosition.copyFrom(newPos);
+        // Manage animations based on speed (if speed > threshold, move)
+        let speed = BABYLON.Vector3.Distance(remote.lastPosition, targetPos);
+        remote.lastPosition.copyFrom(targetPos);
 
         let movementDir = new BABYLON.Vector3(
-            newPos.x - remote.lastPosition.x,
+            targetPos.x - remote.lastPosition.x,
             0,
-            newPos.z - remote.lastPosition.z
+            targetPos.z - remote.lastPosition.z
         ).normalize();
 
         let animationToPlay = "idle";
