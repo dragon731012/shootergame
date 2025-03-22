@@ -135,11 +135,11 @@ window.handleOtherPlayerShoot = async function(data) {
     
     bullet.isVisible = true;
 
-    bullet.onCollideObservable.add((collidedMesh) => {
-        console.debug(`collided with mesh: ${collidedMesh.name}`);
-    });    
+    onCollisionStart(bullet,(e)=>{
+        e.collider.owner.dispose();
+        console.log("hit "+e.otherCollider.owner);
+    });
 };
-
 
 window.handleOtherPlayerMovement = function(data) {
     data.movementData.y-=2;

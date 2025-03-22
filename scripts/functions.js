@@ -90,3 +90,15 @@ function Explode(item,size,length)
             );
         });
     }
+
+function onCollisionStart(mesh,callback){
+    mesh.physicsBody?.onContactStart((event) => {
+        callback(event);
+    });
+}
+
+function onCollisionEnd(mesh,callback){
+    mesh.physicsBody?.onContactEnd((event) => {
+        callback(event);
+    });
+}
