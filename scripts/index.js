@@ -173,8 +173,6 @@ const createScene = async () => {
 
         onCollisionStart(bullet,(e)=>{
             console.log(e);
-            e.collider.owner.dispose();
-            console.log("hit "+e.otherCollider.owner);
         });
     }
 
