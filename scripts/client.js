@@ -37,7 +37,7 @@ window.network = {
 let remotePlayers = {}; 
 let recentlyDisconnected = {};
 let playerModel;
-let originalAnimations = []; // Store original animation groups
+let originalAnimations = []; // Array of { name, animationGroup }
 let assetsLoaded = false;
 
 // Function to load the player model once
@@ -51,11 +51,11 @@ async function startGame() {
             playerModel.rotationQuaternion = BABYLON.Quaternion.Identity();
         }
 
-        // Store original animations with corrected keys (lowercase)
+        // Store the original animation groups (with their names lowercased)
         result.animationGroups.forEach(ag => {
-            const baseAnimName = ag.name.toLowerCase();
-            originalAnimations.push({ name: baseAnimName, animationGroup: ag });
-            ag.stop();
+            let animName = ag.name.toLowerCase();
+            originalAnimations.push({ name: animName, animationGroup: ag });
+            ag.stop(); // Ensure they are not playing on the base model
         });
 
         assetsLoaded = true;
@@ -68,6 +68,7 @@ async function startGame() {
 function createRemotePlayer(playerId, position) {
     if (!assetsLoaded) return;
 
+    // Clone the player model
     let clonedModel = playerModel.clone("player_" + playerId);
     clonedModel.position.copyFrom(position);
     clonedModel.isVisible = true;
@@ -75,29 +76,24 @@ function createRemotePlayer(playerId, position) {
         clonedModel.rotationQuaternion = BABYLON.Quaternion.Identity();
     }
 
-    // Clone animations with corrected names
+    // Clone each animation group using Babylon's built-in clone() helper.
+    // This callback maps the original target to the corresponding node in the clone.
     const clonedAnimations = {};
     originalAnimations.forEach(({ name, animationGroup }) => {
-        const clonedAG = new BABYLON.AnimationGroup(`player_${playerId}_${name}`, scene);
-        clonedAG.from = animationGroup.from;
-        clonedAG.to = animationGroup.to;
-        
-        animationGroup.targetedAnimations.forEach(ta => {
-            const targetNode = clonedModel.getChildTransformNodes(true).find(n => n.name === ta.target.name);
-            if (targetNode) {
-                const clonedAnimation = ta.animation.clone();
-                clonedAG.addTargetedAnimation(clonedAnimation, targetNode);
+        const clonedAG = animationGroup.clone(
+            `player_${playerId}_${name}`,
+            (oldTarget) => {
+                return clonedModel.getChildTransformNodes(true).find(n => n.name === oldTarget.name) || clonedModel;
             }
-        });
-
-        // Store using base name (no player prefix)
-        const baseAnimName = name.replace(/^player_\w+_/, ""); 
-        clonedAnimations[baseAnimName] = clonedAG;
-        
-        console.log(`Stored animation: ${baseAnimName} -> ${clonedAG.name}`);
+        );
+        clonedAnimations[name] = clonedAG;
+        console.log(`Stored animation: ${name} -> ${clonedAG.name}`);
     });
 
-    // Start idle animation by default
+    // Ensure all animations are stopped before starting idle
+    Object.values(clonedAnimations).forEach(ag => ag.stop());
+
+    // Start the idle animation by default (with looping)
     if (clonedAnimations["idle"]) {
         clonedAnimations["idle"].start(true, 1.0, clonedAnimations["idle"].from, clonedAnimations["idle"].to, true);
     }
@@ -112,7 +108,7 @@ function createRemotePlayer(playerId, position) {
     };
 }
 
-// Render loop for smooth interpolation
+// Render loop for smooth interpolation of remote players
 scene.onBeforeRenderObservable.add(() => {
     const now = Date.now();
     for (const playerId in remotePlayers) {
@@ -127,7 +123,7 @@ scene.onBeforeRenderObservable.add(() => {
     }
 });
 
-// Updated movement handler
+// Movement handler for remote players
 window.handleOtherPlayerMovement = function(data) {
     const currentTime = Date.now();
     if (currentTime - (remotePlayers[data.id]?.lastUpdateTime || 0) < 100) return;
@@ -152,7 +148,7 @@ window.handleOtherPlayerMovement = function(data) {
         remote.interpolationStartTime = currentTime;
         remote.lastUpdateTime = currentTime;
 
-        // Handle rotation
+        // Handle rotation (using yaw based on provided direction)
         if (data.rotationData) {
             const dir = new BABYLON.Vector3(
                 data.rotationData.x,
@@ -163,22 +159,18 @@ window.handleOtherPlayerMovement = function(data) {
             remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }
 
-        // Determine which animation to play based on direction
+        // Determine which animation to play based on movement direction
         let animationToPlay = getMovementAnimation(data.direction);
         console.log("Direction:", data.direction, "Animation:", animationToPlay);
 
         if (remote.currentAnimation !== animationToPlay) {
-            // Stop and reset all current animations before switching
-            Object.values(remote.animations).forEach(anim => {
-                anim.stop();
-                anim.reset();
-            });
-            // Start the new animation if available
+            // Stop all current animations for the player
+            Object.values(remote.animations).forEach(anim => anim.stop());
+
+            // Start the new animation if it exists
             if (remote.animations[animationToPlay]) {
                 const isLooping = ["idle", "run", "run_back", "run_left", "run_right"].includes(animationToPlay);
-                
                 console.log(`Playing animation: ${animationToPlay} for player ${data.id}`);
-                remote.animations[animationToPlay].reset();
                 remote.animations[animationToPlay].start(true, 1.0, 
                     remote.animations[animationToPlay].from, 
                     remote.animations[animationToPlay].to, 
@@ -187,15 +179,6 @@ window.handleOtherPlayerMovement = function(data) {
                 remote.currentAnimation = animationToPlay;
             } else {
                 console.warn(`Animation '${animationToPlay}' not found for player ${data.id}. Available:`, Object.keys(remote.animations));
-            }
-        } else {
-            // If the desired animation is already set but somehow not playing, ensure it's restarted.
-            let currentAnim = remote.animations[animationToPlay];
-            if (!currentAnim.isStarted) {
-                console.log(`Restarting animation: ${animationToPlay} for player ${data.id}`);
-                currentAnim.reset();
-                const isLooping = ["idle", "run", "run_back", "run_left", "run_right"].includes(animationToPlay);
-                currentAnim.start(true, 1.0, currentAnim.from, currentAnim.to, isLooping);
             }
         }
     }
@@ -207,7 +190,7 @@ function getMovementAnimation(direction) {
     if (direction === "left") return "run_left";
     if (direction === "right") return "run_right";
     if (direction === "idle") return "idle";
-    // If an unexpected direction is received, default to idle.
+    // Default to idle if not recognized
     return "idle";
 }
 
