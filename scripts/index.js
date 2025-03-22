@@ -320,6 +320,8 @@ const createScene = async () => {
         } else{
             direction = "idle";
         }
+
+        document.getElementById("testbox").innerHTML=direction;
         
         if (window.network && player) {
             window.network.sendPlayerMovement(player.position,camera.getDirection(new BABYLON.Vector3(0,0,1)),direction);
