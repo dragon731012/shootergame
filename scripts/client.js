@@ -96,17 +96,26 @@ window.handleOtherPlayerShoot = async function(data) {
     bulletMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
     bullet.material = bulletMaterial;
 
-    // Initially set the bullet's position based on the received data.
-    bullet.position.copyFrom(data.position);
+    // Create the bullet direction vector and normalize it.
+    const bulletDirection = new BABYLON.Vector3(data.direction.x, data.direction.y, data.direction.z).normalize();
+
+    // Compute an offset relative to the remote player's model.
+    // We'll take the remote model's forward vector and compute a right vector from it.
+    let forward = BABYLON.Vector3.TransformNormal(new BABYLON.Vector3(0, 0, 1), remote.model.getWorldMatrix()).normalize();
+    let right = BABYLON.Vector3.Cross(BABYLON.Axis.Y, forward).normalize();
     
-    // Create a bullet direction vector from the data.
-    const bulletDirection = new BABYLON.Vector3(data.direction.x, data.direction.y, data.direction.z);
-    
-    // Offset the bullet so it starts 0.5 units closer to the remote player.
-    // Adjust the offset value as necessary.
-    bullet.position.subtractInPlace(bulletDirection.scale(0.5));
-    
-    // Detach the bullet so it moves independently of the remote player's model.
+    // Define offset values: a small backward offset and a sideways offset.
+    const backwardOffset = 0.2;  // Move the bullet closer (backward relative to the model)
+    const sideOffset = 0.2;      // Move it to the other side
+
+    // Here, we subtract along the forward direction (to come closer) and add along the right vector.
+    let bulletOrigin = remote.model.position
+        .add(forward.scale(-backwardOffset))
+        .add(right.scale(sideOffset));
+
+    bullet.position.copyFrom(bulletOrigin);
+
+    // Detach bullet from remote player's model to move independently.
     bullet.setParent(null);
     
     const bulletPhysics = new BABYLON.PhysicsAggregate(
@@ -133,6 +142,7 @@ window.handleOtherPlayerShoot = async function(data) {
         }
     }
 };
+
 
 window.handleOtherPlayerMovement = function(data) {
     data.movementData.y-=2;
