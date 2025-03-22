@@ -94,7 +94,7 @@ function Explode(item,size,length)
 function onCollisionStart(mesh,callback){
     mesh.physicsBody.setCollisionCallbackEnabled(true);
 
-    mesh.physicsImpostor.registerOnPhysicsCollide(null, function (collider) {
+    mesh.physicsBody.registerOnPhysicsCollide(null, function (collider) {
         callback(collider);
     });
 }
