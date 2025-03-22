@@ -57,7 +57,7 @@ function createRemotePlayer(playerId, position) {
             });
     
             remoteModelHitbox = BABYLON.MeshBuilder.CreateSphere("player", { size: 1 }, scene);
-            remoteModelHitbox.scaling = new BABYLON.Vector3(2, 4, 2);
+            remoteModelHitbox.scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
             remoteModelHitbox.name = playerId;
             remoteModelHitbox.isVisible = true;
             remoteModelHitbox.parent=remoteModel;
