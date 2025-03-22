@@ -122,7 +122,7 @@ const createScene = async () => {
         scene
     );
 
-    document.addEventListener("click", async () => {
+    function shoot(){
         Explode(showbullet, 0.01, 0.02);
     
         var bullet = await add3d("assets/bullet.glb");
@@ -167,6 +167,12 @@ const createScene = async () => {
         bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
     
         bullet.isVisible = true;
+
+        window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection);
+    }
+
+    document.addEventListener("click", async () => {
+        shoot();
     });    
 
     const spawnEnemy = () => {

@@ -7,8 +7,12 @@ socket.on('connect', () => {
 socket.on('playerMoved', (data) => {
     if (window.handleOtherPlayerMovement) {
         window.handleOtherPlayerMovement(data);
-    } else {
-        console.log(`Player ${data.id} moved:`, data.movementData);
+    }
+});
+
+socket.on('playerShot', (data) => {
+    if (window.handleOtherPlayerShoot) {
+        window.handleOtherPlayerShoot(data);
     }
 });
 
@@ -37,15 +41,9 @@ window.network = {
 let remotePlayers = {}; 
 let recentlyDisconnected = {};
 
-/**
- * Loads a new model for a remote player.
- * A placeholder is stored immediately to prevent concurrent loads.
- */
 function createRemotePlayer(playerId, position) {
-    // If an entry already exists (even a placeholder), do not create another load.
     if (remotePlayers[playerId]) return;
 
-    // Set a placeholder so that duplicate load calls are ignored.
     remotePlayers[playerId] = { loading: true };
 
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene)
@@ -71,17 +69,15 @@ function createRemotePlayer(playerId, position) {
         })
         .catch(error => {
             console.error("Error loading remote player model:", error);
-            delete remotePlayers[playerId]; // Remove placeholder if error occurs.
+            delete remotePlayers[playerId]; 
         });
 }
 
 
-// Render loop for smooth interpolation of remote players.
 scene.onBeforeRenderObservable.add(() => {
     const now = Date.now();
     for (const playerId in remotePlayers) {
         const remote = remotePlayers[playerId];
-        // Skip if still loading.
         if (remote.loading) continue;
         const elapsed = now - remote.interpolationStartTime;
         const t = Math.min(elapsed / 100, 1);
@@ -89,10 +85,41 @@ scene.onBeforeRenderObservable.add(() => {
     }
 });
 
-/**
- * Handles movement data from other players.
- * Prevents processing data too frequently and creates a new remote player if needed.
- */
+window.handleOtherPlayerShoot = function(data) {
+    var bullet = await add3d("assets/bullet.glb");
+    bullet.isVisible = false;
+    bullet.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
+
+    const bulletMaterial = new BABYLON.StandardMaterial("bulletMaterial", scene);
+    bulletMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
+    
+    hl.addMesh(bullet, BABYLON.Color3.Yellow());
+
+    let gunTipPosition = data.position;
+    bullet.position.copyFrom(gunTipPosition);     
+
+    const bulletDirection = data.direction;
+
+    bullet.setParent(null);
+    
+    let forward = camera.getForwardRay().direction;
+    bullet.lookAt(bullet.position.add(forward));
+
+    const bulletPhysics = new BABYLON.PhysicsAggregate(
+        bullet,
+        BABYLON.PhysicsShapeType.BOX,
+        { mass: 0.001 },
+        scene
+    );
+
+    bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0)); 
+    bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) });
+
+    bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
+
+    bullet.isVisible = true;
+}
+
 window.handleOtherPlayerMovement = function(data) {
     data.movementData.y-=2;
 
@@ -110,7 +137,6 @@ window.handleOtherPlayerMovement = function(data) {
         data.movementData.z
     );
 
-    // Create the remote player if it doesn't exist or is still loading.
     if (!remotePlayers[data.id] || remotePlayers[data.id].loading) {
         createRemotePlayer(data.id, newPos);
     } else {
@@ -120,7 +146,6 @@ window.handleOtherPlayerMovement = function(data) {
         remote.interpolationStartTime = currentTime;
         remote.lastUpdateTime = currentTime;
 
-        // Update rotation if provided.
         if (data.rotationData) {
             const dir = new BABYLON.Vector3(
                 data.rotationData.x,
@@ -131,7 +156,6 @@ window.handleOtherPlayerMovement = function(data) {
             remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }
 
-        // Determine which animation to play.
         let animationToPlay = getMovementAnimation(data.direction);
 
         console.log("direction: "+data.direction,"animation:"+animationToPlay);
