@@ -49,6 +49,7 @@ function createRemotePlayer(playerId, position) {
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene)
         .then(result => {
             let remoteModel=result.meshes[0];
+            remoteModel.name=playerId;
             remoteModel.scaling = new BABYLON.Vector3(1.4, 1.3, 1.4);
             let remoteAnimations={};
             result.animationGroups.forEach(ag => {
@@ -56,6 +57,13 @@ function createRemotePlayer(playerId, position) {
             });
     
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
+
+            new BABYLON.PhysicsAggregate(
+                remoteModel,
+                BABYLON.PhysicsShapeType.BOX,
+                { mass: 0},
+                scene
+            );
 
             remotePlayers[playerId] = {
                 model: remoteModel,
@@ -137,8 +145,8 @@ window.handleOtherPlayerShoot = async function(data) {
 
     onCollisionStart(bullet,(e)=>{
         console.log(e.collidedAgainst.transformNode.name);
-        console.log(e.collider.transformNode.name);
-    });
+        bullet.dispose();
+    },);
 };
 
 window.handleOtherPlayerMovement = function(data) {

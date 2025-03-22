@@ -173,7 +173,7 @@ const createScene = async () => {
 
         onCollisionStart(bullet,(e)=>{
             console.log(e.collidedAgainst.transformNode.name);
-            console.log(e.collider.transformNode.name);
+            bullet.dispose();
         });
     }
 
