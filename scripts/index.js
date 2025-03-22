@@ -172,8 +172,9 @@ const createScene = async () => {
         window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection);
 
         onCollisionStart(bullet,(e)=>{
-            console.log(e.collidedAgainst.transformNode.name);
-            bullet.dispose();
+            var name=e.collidedAgainst.transformNode.name;
+            console.log(name);
+            if (name!="player") bullet.dispose();
         });
     }
 
