@@ -34,7 +34,6 @@ window.network = {
         socket.emit('shoot', { 
             position: gunPosition, 
             direction: { x: direction.x, y: direction.y, z: direction.z },
-            moving: moving
         });
     }
 };
