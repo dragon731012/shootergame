@@ -122,7 +122,7 @@ const createScene = async () => {
         scene
     );
 
-    function shoot(){
+    async function shoot(){
         Explode(showbullet, 0.01, 0.02);
     
         var bullet = await add3d("assets/bullet.glb");
@@ -172,7 +172,7 @@ const createScene = async () => {
     }
 
     document.addEventListener("click", async () => {
-        shoot();
+        await shoot();
     });    
 
     const spawnEnemy = () => {
