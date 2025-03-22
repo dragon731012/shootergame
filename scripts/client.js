@@ -56,10 +56,14 @@ function createRemotePlayer(playerId, position) {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
             });
     
+            remoteModelHitbox = BABYLON.MeshBuilder.CreateSphere("player", { size: 1 }, scene);
+            remoteModelHitbox.scaling = new BABYLON.Vector3(2, 2, 4);
+            remoteModelHitbox.name = playerId;
+
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
 
             new BABYLON.PhysicsAggregate(
-                remoteModel,
+                remoteModelHitbox,
                 BABYLON.PhysicsShapeType.BOX,
                 { mass: 0},
                 scene
