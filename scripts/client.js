@@ -118,6 +118,15 @@ window.handleOtherPlayerShoot = function(data) {
     bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
 
     bullet.isVisible = true;
+
+    let animationToPlay = getMovementAnimation("shoot");
+    if (remote.currentAnimation !== animationToPlay) {
+        Object.values(remote.animations).forEach(anim => anim.stop());
+        if (remote.animations[animationToPlay]) {
+            remote.animations[animationToPlay].start(true);
+            remote.currentAnimation = animationToPlay;
+        }
+    }
 }
 
 window.handleOtherPlayerMovement = function(data) {
@@ -158,8 +167,6 @@ window.handleOtherPlayerMovement = function(data) {
 
         let animationToPlay = getMovementAnimation(data.direction);
 
-        console.log("direction: "+data.direction,"animation:"+animationToPlay);
-
         if (remote.currentAnimation !== animationToPlay) {
             Object.values(remote.animations).forEach(anim => anim.stop());
             if (remote.animations[animationToPlay]) {
@@ -181,7 +188,8 @@ function getMovementAnimation(direction) {
         "backwardright": "run_left",
         "right": "run_left",
         "left": "run_right",
-        "idle": "idle"
+        "idle": "idle",
+        "shoot": "gun_shoot"
     };
     let animationToPlay = animationMap[direction] || "idle";
     return animationToPlay;
