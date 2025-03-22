@@ -107,6 +107,8 @@ window.handleOtherPlayerShoot = async function(data) {
     const backwardOffset = 0.2;  // Move the bullet closer (backward relative to the model)
     const sideOffset = 0.2;      // Move it to the other side
 
+    bullet.parent=remote.model;
+
     // Here, we subtract along the forward direction (to come closer) and add along the right vector.
     let bulletOrigin = new BABYLON.Vector3(data.position.x,data.position.y,data.position.z)
         .add(forward.scale(-backwardOffset))
