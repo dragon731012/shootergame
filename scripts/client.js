@@ -90,6 +90,8 @@ window.handleOtherPlayerShoot = async function(data) {
     let remote = remotePlayers[data.id];
     
     let animationToPlay;
+
+    console.log(data.moving);
     if (data.moving){
         animationToPlay = getMovementAnimation("shoot");
     } else {
