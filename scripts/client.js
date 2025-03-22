@@ -113,6 +113,7 @@ scene.onBeforeRenderObservable.add(() => {
         const elapsed = now - remote.interpolationStartTime;
         const t = Math.min(elapsed / 100, 1);
         remote.model.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
+        remote.hitbox.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
     }
 });
 
@@ -193,8 +194,6 @@ window.handleOtherPlayerMovement = function(data) {
         data.movementData.y,
         data.movementData.z
     );
-
-    remotePlayers[data.id].hitbox.position=remotePlayers[data.id].model.getAbsolutePosition();
 
     if (!remotePlayers[data.id] || remotePlayers[data.id].loading) {
         createRemotePlayer(data.id, newPos);
