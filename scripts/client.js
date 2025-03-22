@@ -1,113 +1,198 @@
-const socket = io('https://server.addmask.com');
-let remotePlayers = {};
-let playerAssetsPromise = null;
+const socket = io('https://server.addmask.com'); // Replace with your actual server domain
 
-// Preload assets once
-async function loadPlayerAssets() {
-    if (!playerAssetsPromise) {
-        playerAssetsPromise = BABYLON.SceneLoader.ImportMeshAsync(null, "assets/", "player.glb", scene)
-            .then(result => ({
-                meshes: result.meshes,
-                animationGroups: result.animationGroups
-            }));
-    }
-    return playerAssetsPromise;
-}
+socket.on('connect', () => {
+    console.log('Connected to server with ID:', socket.id);
+});
 
-// Create individual player instances
-async function createRemotePlayer(playerId, position) {
-    try {
-        const { meshes, animationGroups } = await loadPlayerAssets();
-        
-        // Create new instance
-        const rootMesh = meshes[0].clone(`player_${playerId}`);
-        rootMesh.position.copyFrom(position);
-        rootMesh.isVisible = true;
-        rootMesh.scaling = new BABYLON.Vector3(1, 1, 1);
-        
-        // Clone animations
-        const animations = {};
-        animationGroups.forEach(originalAG => {
-            const ag = originalAG.clone(`anim_${playerId}_${originalAG.name}`);
-            animations[originalAG.name.toLowerCase()] = ag;
-        });
-
-        remotePlayers[playerId] = {
-            rootMesh,
-            animations,
-            currentAnimation: null,
-            lastPosition: position.clone()
-        };
-
-        playAnimation(playerId, 'idle');
-
-    } catch (error) {
-        console.error(`Failed to create player ${playerId}:`, error);
-    }
-}
-
-// Animation control
-function playAnimation(playerId, animationName) {
-    const player = remotePlayers[playerId];
-    if (!player) return;
-
-    animationName = animationName.toLowerCase();
-    if (player.currentAnimation === animationName) return;
-
-    // Stop current animation
-    if (player.currentAnimation) {
-        player.animations[player.currentAnimation].stop();
-    }
-
-    // Start new animation
-    const animGroup = player.animations[animationName];
-    if (animGroup) {
-        animGroup.start(true);
-        player.currentAnimation = animationName;
-    }
-}
-
-// Movement handling
-window.handleOtherPlayerMovement = function(data) {
-    const playerId = data.id;
-    const newPos = new BABYLON.Vector3(data.movementData.x, data.movementData.y, data.movementData.z);
-
-    if (!remotePlayers[playerId]) {
-        createRemotePlayer(playerId, newPos);
+socket.on('playerMoved', (data) => {
+    if (window.handleOtherPlayerMovement) {
+        window.handleOtherPlayerMovement(data);
     } else {
-        const player = remotePlayers[playerId];
-        player.rootMesh.position.copyFrom(newPos);
+        console.log(`Player ${data.id} moved:`, data.movementData);
+    }
+});
 
-        // Update rotation
+socket.on('playerDisconnected', (data) => {
+    if (window.handlePlayerDisconnected) {
+        window.handlePlayerDisconnected(data);
+    }
+});
+
+window.network = {
+    sendPlayerMovement: function(position, rotation, direction) {
+        socket.emit('player-movement', { 
+            position: { x: position.x, y: position.y, z: position.z },
+            rotation: { x: rotation.x, y: rotation.y, z: rotation.z },
+            direction: direction
+        });
+    },
+    sendShootEvent: function(gunPosition, direction) {
+        socket.emit('shoot', { 
+            position: gunPosition, 
+            direction: { x: direction.x, y: direction.y, z: direction.z } 
+        });
+    }
+};
+
+let remotePlayers = {}; 
+let recentlyDisconnected = {};
+
+// Function to load the local player model (if needed for local operations)
+async function startGame() {
+    try {
+        let result = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene);
+        // The local player model is stored here if you need it for local use.
+        // For remote players we will load new models for each instance.
+        console.log("Local player model loaded");
+    } catch (error) {
+        console.error("Error loading local model:", error);
+    }
+}
+
+// Function to load a new model for a remote player
+function createRemotePlayer(playerId, position) {
+    BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene)
+        .then(result => {
+            let remoteModel = result.meshes[0];
+            remoteModel.position.copyFrom(position);
+            remoteModel.isVisible = true;
+            if (!remoteModel.rotationQuaternion) {
+                remoteModel.rotationQuaternion = BABYLON.Quaternion.Identity();
+            }
+
+            // Process animations for the remote player model
+            let remoteAnimations = {};
+            result.animationGroups.forEach(ag => {
+                const animName = ag.name.toLowerCase();
+                // Create a new animation group for this remote player
+                let newAnimGroup = new BABYLON.AnimationGroup(`player_${playerId}_${animName}`, scene);
+                newAnimGroup.from = ag.from;
+                newAnimGroup.to = ag.to;
+
+                ag.targetedAnimations.forEach(ta => {
+                    let targetNode;
+                    // If the animation targets the root, set it to the remote model
+                    if (ta.target === result.meshes[0]) {
+                        targetNode = remoteModel;
+                    } else {
+                        targetNode = remoteModel.getChildTransformNodes(true).find(n => n.name === ta.target.name);
+                    }
+                    if (targetNode) {
+                        const clonedAnimation = ta.animation.clone();
+                        newAnimGroup.addTargetedAnimation(clonedAnimation, targetNode);
+                    } else {
+                        console.error(`Target node ${ta.target.name} not found for animation ${ta.animation.name}`);
+                    }
+                });
+                remoteAnimations[animName] = newAnimGroup;
+            });
+
+            // Start idle animation by default if available
+            if (remoteAnimations["idle"]) {
+                remoteAnimations["idle"].start(true, 1.0, remoteAnimations["idle"].from, remoteAnimations["idle"].to, true);
+            }
+
+            remotePlayers[playerId] = {
+                model: remoteModel,
+                animations: remoteAnimations,
+                startPosition: position.clone(),
+                targetPosition: position.clone(),
+                interpolationStartTime: Date.now(),
+                currentAnimation: "idle"
+            };
+        })
+        .catch(error => {
+            console.error("Error loading remote player model:", error);
+        });
+}
+
+// Render loop for smooth interpolation
+scene.onBeforeRenderObservable.add(() => {
+    const now = Date.now();
+    for (const playerId in remotePlayers) {
+        const remote = remotePlayers[playerId];
+        const elapsed = now - remote.interpolationStartTime;
+        const t = Math.min(elapsed / 100, 1);
+        remote.model.position = BABYLON.Vector3.Lerp(
+            remote.startPosition, 
+            remote.targetPosition, 
+            t
+        );
+    }
+});
+
+// Updated movement handler
+window.handleOtherPlayerMovement = function(data) {
+    const currentTime = Date.now();
+    if (currentTime - (remotePlayers[data.id]?.lastUpdateTime || 0) < 100) return;
+
+    if (recentlyDisconnected[data.id]) {
+        if (Date.now() - recentlyDisconnected[data.id] < 1000) return;
+        delete recentlyDisconnected[data.id];
+    }
+
+    const newPos = new BABYLON.Vector3(
+        data.movementData.x,
+        data.movementData.y,
+        data.movementData.z
+    );
+
+    if (!remotePlayers[data.id]) {
+        createRemotePlayer(data.id, newPos);
+    } else {
+        const remote = remotePlayers[data.id];
+        remote.startPosition.copyFrom(remote.model.position);
+        remote.targetPosition.copyFrom(newPos);
+        remote.interpolationStartTime = currentTime;
+        remote.lastUpdateTime = currentTime;
+
+        // Handle rotation based on provided rotation data
         if (data.rotationData) {
-            const dir = new BABYLON.Vector3(data.rotationData.x, data.rotationData.y, data.rotationData.z);
-            player.rootMesh.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(
-                Math.atan2(dir.x, dir.z), 0, 0
+            const dir = new BABYLON.Vector3(
+                data.rotationData.x,
+                data.rotationData.y,
+                data.rotationData.z
             );
+            const yaw = Math.atan2(dir.x, dir.z);
+            remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }
 
-        // Update animation
-        playAnimation(playerId, getMovementAnimation(data.direction));
+        // Determine which animation to play based on movement direction
+        let animationToPlay = getMovementAnimation(data.direction);
+        console.log("Direction:", data.direction, "Animation:", animationToPlay);
+
+        if (remote.currentAnimation !== animationToPlay) {
+            // Stop all current animations
+            Object.values(remote.animations).forEach(anim => {
+                anim.stop();
+            });
+            // Start the new animation if available
+            const newAnim = remote.animations[animationToPlay];
+            if (newAnim) {
+                newAnim.start(true, 1.0, newAnim.from, newAnim.to, true);
+                remote.currentAnimation = animationToPlay;
+            } else {
+                console.warn(`Animation '${animationToPlay}' not found for player ${data.id}. Available:`, Object.keys(remote.animations));
+            }
+        }
     }
 };
 
-// Cleanup
+function getMovementAnimation(direction) {
+    if (direction === "forward" || direction === "forwardleft" || direction === "forwardright") return "run";
+    if (direction === "backward" || direction === "backwardleft" || direction === "backwardright") return "run_back";
+    if (direction === "left") return "run_left";
+    if (direction === "right") return "run_right";
+    if (direction === "idle") return "idle";
+    return "idle"; // Default fallback
+}
+
 window.handlePlayerDisconnected = function(data) {
-    const player = remotePlayers[data.id];
-    if (player) {
-        // Dispose all resources
-        player.rootMesh.dispose();
-        Object.values(player.animations).forEach(anim => anim.dispose());
+    if (remotePlayers[data.id]) {
+        remotePlayers[data.id].model.dispose();
         delete remotePlayers[data.id];
     }
+    recentlyDisconnected[data.id] = Date.now();
 };
 
-// Initialization
-(async function init() {
-    try {
-        await loadPlayerAssets();
-        console.log("Player assets loaded successfully");
-    } catch (error) {
-        console.error("Failed to initialize player assets:", error);
-    }
-})();
+startGame();
