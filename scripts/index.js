@@ -20,6 +20,15 @@ const jumpForce = 80;
 const jumpForceIncrease = 4;
 const gunBob = 40;
 
+const guns={
+    machine_gun:{
+        damage:5,
+        asset:"/assets/machinegun.glb"
+    }
+}
+
+var currentgun="machine_gun";
+
 canvas.addEventListener('click', () => {
     canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
     canvas.requestPointerLock();
@@ -97,7 +106,7 @@ const createScene = async () => {
 
     camera.target = player;
 
-    gun = await add3d("/assets/machinegun.glb");
+    gun = await add3d(guns[currentgun].asset);
     gun.parent = camera;
     currentgunpos = -0.42;
     gun.position = new BABYLON.Vector3(1.75, -0.42, 0.5);
@@ -161,10 +170,9 @@ const createScene = async () => {
             scene
         );
     
-        bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0)); // Stop spinning
-        bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) }); // No rotational inertia
+        bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0));
+        bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) }); 
     
-        // Apply force forward
         bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
     
         bullet.isVisible = true;
@@ -173,7 +181,7 @@ const createScene = async () => {
 
         onCollisionStart(bullet,(e)=>{
             var name=e.collidedAgainst.transformNode.name;
-            console.log(name);
+            if (remotePlayers.includes(name)) window.network.sendDamageEvent(name,userid,guns[currentgun].damage);
             if (name!="player") bullet.dispose();
         });
     }
@@ -206,7 +214,6 @@ const createScene = async () => {
     setInterval(spawnEnemy, enemySpawnInterval);
     
     scene.onBeforeRenderObservable.add(() => {
-        // Define movement inputs
         let forwardMovement = 0;
         let rightMovement = 0;
         let upMovement = 0;
@@ -218,13 +225,11 @@ const createScene = async () => {
 
 
 
-        // Get camera forward and right directions
         const forward = camera.getForwardRay().direction;
         const right = BABYLON.Vector3.Cross(BABYLON.Vector3.Up(), forward).normalize();
 
         var direction = "forward";
 
-        // Zero out vertical movement
         forward.y = playerBody.body.getLinearVelocity().y;
         right.y = playerBody.body.getLinearVelocity().y;
 
@@ -237,12 +242,10 @@ const createScene = async () => {
         }
 
 
-        // Combine forward and right movement
         const movement = forward.scale(forwardMovement).add(right.scale(rightMovement));
 
         movement.y = playerBody.body.getLinearVelocity().y;
 
-        // Apply the horizontal movement as linear velocity to the player's physics body        
         playerBody.body.setLinearVelocity(movement);
 
         if (keyMap[" "] && canJump) {
@@ -251,7 +254,6 @@ const createScene = async () => {
             console.log("jumping");
         }
 
-        // Sync camera position with player position
         camera.position.copyFrom(player.position);
         camera.setTarget(player.position);
 
@@ -273,7 +275,6 @@ const createScene = async () => {
             let targetRotation = new BABYLON.Vector3(-0.1, Math.PI / 2, 0);
             gun.rotation = BABYLON.Vector3.Lerp(gun.rotation, targetRotation, 0.1);
             currentgunpos = -0.3;
-            direction = "left"
             //gun.position.y = currentgunpos + 0.025 * Math.sin(Date.now() * 0.015);
         }
 
@@ -307,9 +308,7 @@ const createScene = async () => {
             if (vY > 0) {
                 gun.position.y += vY / (25 * gunBob);
             } else {
-                // Compute target position based on the falling velocity
                 let targetY = currentgunpos + vY / gunBob;
-                // Smoothly interpolate toward the target
                 gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetY, 0.1);
             }
         }

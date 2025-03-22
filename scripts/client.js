@@ -1,7 +1,9 @@
 const socket = io('https://server.addmask.com'); // Replace with your actual server domain
+let userid;
 
 socket.on('connect', () => {
     console.log('Connected to server with ID:', socket.id);
+    userid=socket.id;
 });
 
 socket.on('playerMoved', (data) => {
@@ -12,6 +14,12 @@ socket.on('playerMoved', (data) => {
 
 socket.on('playerShot', (data) => {
     if (window.handleOtherPlayerShoot) {
+        window.handleOtherPlayerShoot(data);
+    }
+});
+
+socket.on('recieveDamageEvent', (data) => {
+    if (window.handleRecieveDamageEvent) {
         window.handleOtherPlayerShoot(data);
     }
 });
@@ -33,7 +41,14 @@ window.network = {
     sendShootEvent: function(gunPosition, direction) {
         socket.emit('shoot', { 
             position: gunPosition, 
-            direction: { x: direction.x, y: direction.y, z: direction.z },
+            direction: { x: direction.x, y: direction.y, z: direction.z }
+        });
+    },
+    sendDamageEvent: function(id, playersent, damage) {
+        socket.emit('sendDamageEvent', { 
+            id: id, 
+            playersent: playersent,
+            damage: damage
         });
     }
 };
@@ -60,7 +75,7 @@ function createRemotePlayer(playerId, position) {
             remoteModelHitbox.scaling = new BABYLON.Vector3(1.2, 2, 1.2);
             remoteModelHitbox.position = new BABYLON.Vector3(0,1,0);
             remoteModelHitbox.name = playerId;
-            remoteModelHitbox.isVisible = true;
+            remoteModelHitbox.isVisible = false;
             remoteModelHitbox.parent=remoteModel;
 
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
@@ -99,6 +114,11 @@ scene.onBeforeRenderObservable.add(() => {
         remote.model.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
     }
 });
+
+window.handleRecieveDamageEvent = function(data) {
+    hp-=data.damage;
+    if (hp<=0) alert("you died!");
+}
 
 window.handleOtherPlayerShoot = async function(data) {
     let remote = remotePlayers[data.id];
