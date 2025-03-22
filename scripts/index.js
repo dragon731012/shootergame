@@ -183,7 +183,7 @@ const createScene = async () => {
             var name=e.collidedAgainst.transformNode.name;
             console.log(name,remotePlayers[name]);
             if (remotePlayers[name]) window.network.sendDamageEvent(name,userid,guns[currentgun].damage);
-            if (name!="player") bullet.dispose();
+            //if (name!="player") bullet.dispose();
         });
     }
 
