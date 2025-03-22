@@ -124,8 +124,8 @@ window.handleOtherPlayerMovement = function(data) {
                 data.rotationData.y,
                 data.rotationData.z
             );
-            const yaw = Math.atan2(dir.x, dir.z);
-            remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(-yaw, 0, 0);
+            const yaw = Math.atan2(dir.z, dir.x);
+            remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }
 
         // Determine which animation to play.
