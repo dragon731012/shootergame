@@ -134,6 +134,10 @@ window.handleOtherPlayerShoot = async function(data) {
     bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
     
     bullet.isVisible = true;
+
+    mesh.onCollideObservable.add((collidedMesh) => {
+        console.debug(`collided with mesh: ${collidedMesh.name}`);
+    });    
 };
 
 

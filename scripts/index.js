@@ -169,6 +169,10 @@ const createScene = async () => {
         bullet.isVisible = true;
 
         window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection);
+
+        mesh.onCollideObservable.add((collidedMesh) => {
+            console.debug(`collided with mesh: ${collidedMesh.name}`);
+        });        
     }
 
     document.addEventListener("click", async () => {
