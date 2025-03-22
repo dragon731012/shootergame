@@ -146,7 +146,7 @@ window.handleOtherPlayerMovement = function(data) {
             remote.model.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, 0, 0);
         }
 
-        let animationToPlay=getMovementAnimation(movementDelta.normalize());
+        let animationToPlay=getMovementAnimation(data.direction);
 
         if (remote.currentAnimation !== animationToPlay) {
             Object.values(remote.animations).forEach(anim => anim.stop());
