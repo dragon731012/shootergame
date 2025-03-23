@@ -177,7 +177,7 @@ const createScene = async () => {
     
         bullet.isVisible = true;
 
-        window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection);
+        window.network.sendShootEvent(gun.getAbsolutePosition(), bulletDirection, guns[currentgun]);
 
         onCollisionStart(bullet,(e)=>{
             var name=e.collidedAgainst.transformNode.name;
