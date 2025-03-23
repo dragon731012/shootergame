@@ -312,7 +312,7 @@ const createScene = async () => {
             }
         }
 
-        const angularVelocity = playerBody.body.angularVelocity;
+        const angularVelocity = playerBody.body.getAngularVelocity();
         playerBody.body.setAngularVelocity(new BABYLON.Vector3(0, angularVelocity.y, 0));
 
 
