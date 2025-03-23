@@ -144,6 +144,13 @@ const createScene = async () => {
         playerBody.shape=newShape;
     },500);
 
+    var viewer = new BABYLON.PhysicsViewer();
+    scene.meshes.forEach((mesh) => {
+        if (mesh.physicsBody) {
+            viewer.showBody(mesh.physicsBody);
+        }
+    });
+
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
     
