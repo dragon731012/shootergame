@@ -78,13 +78,6 @@ function createRemotePlayer(playerId, position) {
             remoteModelHitbox.isVisible = true;
             remoteModelHitbox.parent = remoteModel;
 
-            remoteModel.physicsImpostor = new BABYLON.PhysicsImpostor(
-                remoteModel,
-                BABYLON.PhysicsImpostor.BoxImpostor,
-                { mass: 0 },
-                scene
-            );
-
             new BABYLON.PhysicsAggregate(
                 remoteModel,
                 BABYLON.PhysicsShapeType.BOX,
