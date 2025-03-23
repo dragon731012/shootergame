@@ -104,7 +104,7 @@ const createScene = async () => {
     player.scaling = new BABYLON.Vector3(4, 4, 4);
     player.isVisible=false;
 
-    camera.target = player;
+    //camera.target = player;
 
     gun = await add3d(guns[currentgun].asset);
     gun.parent = camera;
