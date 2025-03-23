@@ -132,6 +132,8 @@ const createScene = async () => {
         scene
     );
 
+    playerBody.shape.setScale(new BABYLON.Vector3(1.5, 2, 1.5));
+
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
     
