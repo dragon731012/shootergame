@@ -66,7 +66,7 @@ function createRemotePlayer(playerId, position) {
         .then(result => {
             let remoteModel=result.meshes[0];
             remoteModel.name=playerId;
-            remoteModel.scaling = new BABYLON.Vector3(0.8, 0.7, 0.8);
+            remoteModel.scaling = new BABYLON.Vector3(1.4, 1.3, 1.4);
             let remoteAnimations={};
             result.animationGroups.forEach(ag => {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
@@ -108,7 +108,6 @@ window.handleRecieveDamageEvent = function(data) {
 }
 
 function wasShot(player, gun) {
-    console.log(gun);
     hp-=gun.damage;
     if (hp<=0) alert("you died!");
 }
@@ -169,7 +168,7 @@ window.handleOtherPlayerShoot = async function(data) {
 };
 
 window.handleOtherPlayerMovement = function(data) {
-    data.movementData.y-=1;
+    data.movementData.y-=2;
 
     const currentTime = Date.now();
     if (currentTime - (remotePlayers[data.id]?.lastUpdateTime || 0) < 100) return;
