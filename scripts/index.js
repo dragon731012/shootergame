@@ -101,7 +101,7 @@ const createScene = async () => {
     );
 
     player = BABYLON.MeshBuilder.CreateSphere("player", { size: 1 }, scene);
-    player.scaling = new BABYLON.Vector3(4, 4, 4);
+    player.scaling = new BABYLON.Vector3(1.2, 2.5, 1.2);
     player.isVisible=false;
 
     camera.target = player;
@@ -131,25 +131,6 @@ const createScene = async () => {
         { mass: 10, restitution:0 },
         scene
     );
-
-    const newShapeMesh = BABYLON.MeshBuilder.CreateBox("box", { 
-        width: 1.5,
-        height: 3,
-        depth: 1.5 
-    }, scene);
-    const newShape = new BABYLON.PhysicsShape({ type: BABYLON.PhysicsShapeType.MESH, parameters: { mesh: newShapeMesh } }, scene);
-    newShapeMesh.dispose();
-
-    setTimeout(()=>{
-        playerBody.shape=newShape;
-    },500);
-
-    var viewer = new BABYLON.PhysicsViewer();
-    scene.meshes.forEach((mesh) => {
-        if (mesh.physicsBody) {
-            viewer.showBody(mesh.physicsBody);
-        }
-    });
 
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
@@ -330,6 +311,10 @@ const createScene = async () => {
                 gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetY, 0.1);
             }
         }
+
+        var newvelocity=player.getAngularVelocity();
+        newvelocity.y=0;
+        player.setAngularVelocity(newvelocity);
 
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
             direction = "forward"; 
