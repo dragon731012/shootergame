@@ -312,8 +312,8 @@ const createScene = async () => {
             }
         }
 
-        const angularVelocity = myMesh.physicsImpostor.angularVelocity;
-        myMesh.physicsImpostor.setAngularVelocity(new BABYLON.Vector3(0, angularVelocity.y, 0));
+        const angularVelocity = playerBody.body.angularVelocity;
+        playerBody.body.setAngularVelocity(new BABYLON.Vector3(0, angularVelocity.y, 0));
 
 
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
