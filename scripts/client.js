@@ -72,13 +72,6 @@ function createRemotePlayer(playerId, position) {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
             });
 
-            new BABYLON.PhysicsAggregate(
-                remoteModel,
-                BABYLON.PhysicsShapeType.BOX,
-                { mass: 1, extents: new BABYLON.Vector3(1.5, 2, 1.5) },
-                scene
-            );
-
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
 
             remotePlayers[playerId] = {
