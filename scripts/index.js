@@ -5,7 +5,6 @@ let scene;
 let camera;
 let player;
 let playerBody;
-let playercamera;
 let showbullet;
 let gun;
 let physicsPlugin;
@@ -101,17 +100,11 @@ const createScene = async () => {
         scene
     );
 
-    player = BABYLON.MeshBuilder.CreateBox("player", { size: 1 }, scene);
-    player.scaling = new BABYLON.Vector3(0.8, 2.1, 0.8);
+    player = BABYLON.MeshBuilder.CreateSphere("player", { size: 1 }, scene);
+    player.scaling = new BABYLON.Vector3(4, 4, 4);
     player.isVisible=false;
 
-    playercamera = BABYLON.MeshBuilder.CreateBox("player", { size: 1 }, scene);
-    playercamera.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
-    playercamera.isVisible = false;
-    playercamera.parent = player;
-    playercamera.position = new BABYLON.Vector3(0,0.5,0);
-
-    camera.target = playercamera;
+    camera.target = player;
 
     gun = await add3d(guns[currentgun].asset);
     gun.parent = camera;
@@ -260,8 +253,8 @@ const createScene = async () => {
             console.log("jumping");
         }
 
-        camera.position.copyFrom(playercamera.getAbsolutePosition());
-        camera.setTarget(playercamera.getAbsolutePosition());
+        camera.position.copyFrom(player.position);
+        camera.setTarget(player.position);
 
         if (keyMap["w"] && !keyMap["s"] && canJump) {
             let targetRotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
@@ -319,10 +312,6 @@ const createScene = async () => {
             }
         }
 
-        const angularVelocity = playerBody.body.getAngularVelocity();
-        playerBody.body.setAngularVelocity(new BABYLON.Vector3(0, angularVelocity.y, 0));
-
-
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
             direction = "forward"; 
         } else if (!keyMap["w"] && keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
@@ -346,7 +335,7 @@ const createScene = async () => {
         document.getElementById("testbox").innerHTML=direction;
         
         if (window.network && player) {
-            window.network.sendPlayerMovement(player.position,playercamera.getDirection(new BABYLON.Vector3(0,0,1)),direction);
+            window.network.sendPlayerMovement(player.position,camera.getDirection(new BABYLON.Vector3(0,0,1)),direction);
         }    
     });
 

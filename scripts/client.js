@@ -72,6 +72,13 @@ function createRemotePlayer(playerId, position) {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
             });
 
+            new BABYLON.PhysicsAggregate(
+                remoteModel,
+                BABYLON.PhysicsShapeType.BOX,
+                { mass: 1, extents: new BABYLON.Vector3(1.5, 2, 1.5) },
+                scene
+            );
+
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
 
             remotePlayers[playerId] = {
@@ -162,7 +169,8 @@ window.handleOtherPlayerShoot = async function(data) {
 
     onCollisionStart(bullet,(e)=>{
         var name=e.collidedAgainst.transformNode.name;
-        if (name=="player") wasShot(remote, data.gun);
+        if (name==player) wasShot(remote, data.gun);
+        console.log(name);
         if (name!=userid) bullet.dispose();
     });
 };
