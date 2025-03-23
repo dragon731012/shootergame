@@ -327,7 +327,7 @@ const createScene = async () => {
             }
         }
 
-        playerhitbox.setAngularVelocity(0,0,0);
+        playerhitbox.body.setAngularVelocity(0,0,0);
 
 
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
