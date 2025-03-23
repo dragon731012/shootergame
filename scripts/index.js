@@ -108,6 +108,7 @@ const createScene = async () => {
 
     playerhitbox = BABYLON.MeshBuilder.CreateBox("playerhitbox", { size: 1 }, scene);
     playerhitbox.scaling = new BABYLON.Vector3(1.1, 2.7, 1.1);
+    
     playerhitbox.isVisible=true;
 
     const playerhitboxm = new BABYLON.StandardMaterial("playerhitboxm", scene);
@@ -120,6 +121,11 @@ const createScene = async () => {
         { mass: 1 },
         scene
     );
+    playerhitboxbody.body.disablePreStep = false;
+
+    setInterval(()=>{
+        playerhitboxbody.body.transformNode.position = new BABYLON.Vector3(player.position.x,player.position.y,player.position.z);
+    },1);
 
     camera.target = player;
 
