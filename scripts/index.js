@@ -125,14 +125,13 @@ const createScene = async () => {
     showbullet.rotation.z=-Math.PI/2+Math.PI/3;
     showbullet.material = showbulletMaterial;
 
-    var shape=new BABYLON.PhysicsShapeType.BOX;
-    shape.extents=new BABYLON.Vector3(1.2,3,1.2);
     playerBody=new BABYLON.PhysicsAggregate(
         player,
-        shape,
+        BABYLON.PhysicsShapeType.BOX,
         { mass: 10, restitution:0 },
         scene
     );
+    playerBody.shape.extents.set(1.5, 3, 1.5);
 
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
