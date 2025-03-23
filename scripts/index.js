@@ -329,6 +329,7 @@ const createScene = async () => {
         }
 
         playerhitboxbody.body.setAngularVelocity(0,0,0);
+        playerhitbox.rotationQuaternion = BABYLON.Quaternion.Identity();
 
 
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
