@@ -6,6 +6,7 @@ let camera;
 let player;
 let playerBody;
 let playerhitbox;
+let playerhitboxbody;
 let showbullet;
 let gun;
 let physicsPlugin;
@@ -113,7 +114,7 @@ const createScene = async () => {
     playerhitboxm.diffuseColor = new BABYLON.Color3(0, 0, 1);
     playerhitbox.material = playerhitboxm;
 
-    new BABYLON.PhysicsAggregate(
+    playerhitboxbody=new BABYLON.PhysicsAggregate(
         playerhitbox,
         BABYLON.PhysicsShapeType.BOX,
         { mass: 1 },
@@ -327,7 +328,7 @@ const createScene = async () => {
             }
         }
 
-        playerhitbox.body.setAngularVelocity(0,0,0);
+        playerhitboxbody.body.setAngularVelocity(0,0,0);
 
 
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
