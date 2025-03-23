@@ -71,18 +71,19 @@ function createRemotePlayer(playerId, position) {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
             });
 
-            new BABYLON.PhysicsAggregate(
+            const physicsAggregate = new BABYLON.PhysicsAggregate(
                 remoteModel,
                 BABYLON.PhysicsShapeType.BOX,
-                { mass: 0, extents: new BABYLON.Vector3(1.5, 2, 1.5) },
+                { mass: 1, extents: new BABYLON.Vector3(1.5, 2, 1.5) },
                 scene
-            );            
-            
+            );
+            physicsAggregate.body.setMotionType(BABYLON.PhysicsMotionType.KINEMATIC); 
 
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
 
             remotePlayers[playerId] = {
                 model: remoteModel,
+                physicsAggregate: physicsAggregate, 
                 animations: remoteAnimations,
                 startPosition: position.clone(),
                 targetPosition: position.clone(),
@@ -106,6 +107,22 @@ scene.onBeforeRenderObservable.add(() => {
         const elapsed = now - remote.interpolationStartTime;
         const t = Math.min(elapsed / 100, 1);
         remote.model.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
+    }
+
+    const now = Date.now();
+    for (const playerId in remotePlayers) {
+        const remote = remotePlayers[playerId];
+        if (remote.loading) continue;
+        const elapsed = now - remote.interpolationStartTime;
+        const t = Math.min(elapsed / 100, 1);
+        remote.model.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
+        
+        if (remote.physicsAggregate) {
+            remote.physicsAggregate.body.setTransform(
+                remote.model.position,
+                remote.model.rotationQuaternion
+            );
+        }
     }
 });
 
