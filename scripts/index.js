@@ -109,7 +109,7 @@ const createScene = async () => {
     playercamera.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
     playercamera.isVisible = false;
     playercamera.parent = player;
-    playercamera.position = new BABYLON.Vector3(0,1,0);
+    playercamera.position = new BABYLON.Vector3(0,0.5,0);
 
     camera.target = playercamera;
 
