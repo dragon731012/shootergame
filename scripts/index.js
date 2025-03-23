@@ -61,7 +61,7 @@ const createScene = async () => {
     physicsPlugin = new BABYLON.HavokPlugin(true, havokInstance);
     scene.enablePhysics(gravityVector, physicsPlugin);
 
-    camera = new BABYLON.FreeCamera(
+    camera = new BABYLON.ArcRotateCamera(
         "camera1",
         -Math.PI / 2,
         Math.PI / 4,
@@ -104,7 +104,7 @@ const createScene = async () => {
     player.scaling = new BABYLON.Vector3(4, 4, 4);
     player.isVisible=false;
 
-    //camera.target = player;
+    camera.target = player;
 
     gun = await add3d(guns[currentgun].asset);
     gun.parent = camera;
