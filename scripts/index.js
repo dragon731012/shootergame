@@ -114,7 +114,7 @@ const createScene = async () => {
     playerhitbox.material = playerhitboxm;
 
     new BABYLON.PhysicsAggregate(
-        ground,
+        playerhitbox,
         BABYLON.PhysicsShapeType.BOX,
         { mass: 1 },
         scene
