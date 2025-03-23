@@ -66,7 +66,7 @@ function createRemotePlayer(playerId, position) {
         .then(result => {
             let remoteModel=result.meshes[0];
             remoteModel.name=playerId;
-            remoteModel.scaling = new BABYLON.Vector3(0.9, 0.8, 0.9);
+            remoteModel.scaling = new BABYLON.Vector3(0.8, 0.7, 0.8);
             let remoteAnimations={};
             result.animationGroups.forEach(ag => {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
@@ -169,7 +169,7 @@ window.handleOtherPlayerShoot = async function(data) {
 };
 
 window.handleOtherPlayerMovement = function(data) {
-    data.movementData.y-=1.1;
+    data.movementData.y-=1;
 
     const currentTime = Date.now();
     if (currentTime - (remotePlayers[data.id]?.lastUpdateTime || 0) < 100) return;
