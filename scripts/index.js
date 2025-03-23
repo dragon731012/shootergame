@@ -253,8 +253,8 @@ const createScene = async () => {
             console.log("jumping");
         }
 
-        camera.position.copyFrom(player.position.add(new BABYLON.Vector3(0, 2, 0)));
-        camera.setTarget(player.position);
+        camera.position.copyFrom(player.position.add(new BABYLON.Vector3(0, 1, 0)));
+        camera.setTarget(player.position.add(new BABYLON.Vector3(0, 1, 0)));
 
         if (keyMap["w"] && !keyMap["s"] && canJump) {
             let targetRotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
