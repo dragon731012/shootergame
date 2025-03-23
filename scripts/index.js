@@ -105,7 +105,7 @@ const createScene = async () => {
     player.scaling = new BABYLON.Vector3(4, 4, 4);
     player.isVisible=false;
 
-    playerhitbox = BABYLON.MeshBuilder.CreateBox("player", { size: 1 }, scene);
+    playerhitbox = BABYLON.MeshBuilder.CreateBox("playerhitbox", { size: 1 }, scene);
     playerhitbox.scaling = new BABYLON.Vector3(1.1, 3.6, 1.1);
     playerhitbox.isVisible=true;
 
