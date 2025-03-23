@@ -3,7 +3,7 @@ let userid;
 
 socket.on('connect', () => {
     console.log('Connected to server with ID:', socket.id);
-    userid=socket.id;
+    userid = socket.id;
 });
 
 socket.on('playerMoved', (data) => {
@@ -31,29 +31,29 @@ socket.on('playerDisconnected', (data) => {
 });
 
 window.network = {
-    sendPlayerMovement: function(position, rotation, direction) {
-        socket.emit('player-movement', { 
+    sendPlayerMovement: function (position, rotation, direction) {
+        socket.emit('player-movement', {
             position: { x: position.x, y: position.y, z: position.z },
             rotation: { x: rotation.x, y: rotation.y, z: rotation.z },
             direction: direction
         });
     },
-    sendShootEvent: function(gunPosition, direction) {
-        socket.emit('shoot', { 
-            position: gunPosition, 
+    sendShootEvent: function (gunPosition, direction) {
+        socket.emit('shoot', {
+            position: gunPosition,
             direction: { x: direction.x, y: direction.y, z: direction.z }
         });
     },
-    sendDamageEvent: function(id, playersent, damage) {
-        socket.emit('sendDamageEvent', { 
-            id: id, 
+    sendDamageEvent: function (id, playersent, damage) {
+        socket.emit('sendDamageEvent', {
+            id: id,
             playersent: playersent,
             damage: damage
         });
     }
 };
 
-let remotePlayers = {}; 
+let remotePlayers = {};
 let recentlyDisconnected = {};
 
 function createRemotePlayer(playerId, position) {
@@ -63,10 +63,10 @@ function createRemotePlayer(playerId, position) {
 
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "player.glb", scene)
         .then(result => {
-            let remoteModel=result.meshes[0];
-            remoteModel.name=playerId;
+            let remoteModel = result.meshes[0];
+            remoteModel.name = playerId;
             remoteModel.scaling = new BABYLON.Vector3(1.4, 1.3, 1.4);
-            let remoteAnimations={};
+            let remoteAnimations = {};
             result.animationGroups.forEach(ag => {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
             });
@@ -77,13 +77,13 @@ function createRemotePlayer(playerId, position) {
                 { mass: 1, extents: new BABYLON.Vector3(1.5, 2, 1.5) },
                 scene
             );
-            physicsAggregate.body.setMotionType(BABYLON.PhysicsMotionType.KINEMATIC); 
+            physicsAggregate.body.setMotionType(BABYLON.PhysicsMotionType.KINEMATIC);
 
             if (remoteAnimations["idle"]) remoteAnimations["idle"].start(true);
 
             remotePlayers[playerId] = {
                 model: remoteModel,
-                physicsAggregate: physicsAggregate, 
+                physicsAggregate: physicsAggregate,
                 animations: remoteAnimations,
                 startPosition: position.clone(),
                 targetPosition: position.clone(),
@@ -94,48 +94,37 @@ function createRemotePlayer(playerId, position) {
         })
         .catch(error => {
             console.error("Error loading remote player model:", error);
-            delete remotePlayers[playerId]; 
+            delete remotePlayers[playerId];
         });
 }
-
 
 scene.onBeforeRenderObservable.add(() => {
     const now = Date.now();
     for (const playerId in remotePlayers) {
         const remote = remotePlayers[playerId];
         if (remote.loading) continue;
-        const elapsed = now - remote.interpolationStartTime;
-        const t = Math.min(elapsed / 100, 1);
-        remote.model.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
-    }
 
-    for (const playerId in remotePlayers) {
-        const remote = remotePlayers[playerId];
-        if (remote.loading) continue;
         const elapsed = now - remote.interpolationStartTime;
         const t = Math.min(elapsed / 100, 1);
         remote.model.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
-        
+
         if (remote.physicsAggregate) {
-            remote.physicsAggregate.body.setTransform(
-                remote.model.position,
-                remote.model.rotationQuaternion
-            );
+            const body = remote.physicsAggregate.body;
+            body.transformNode.position.copyFrom(remote.model.position);
+            body.transformNode.rotationQuaternion = remote.model.rotationQuaternion;
         }
     }
 });
 
-window.handleRecieveDamageEvent = function(data) {
-    hp-=data.damage;
-    if (hp<=0) alert("you died!");
+window.handleRecieveDamageEvent = function (data) {
+    hp -= data.damage;
+    if (hp <= 0) alert("you died!");
 }
 
-window.handleOtherPlayerShoot = async function(data) {
+window.handleOtherPlayerShoot = async function (data) {
     let remote = remotePlayers[data.id];
-    
-    let animationToPlay;
 
-    animationToPlay = getMovementAnimation("shoot");
+    let animationToPlay = getMovementAnimation("shoot");
 
     if (remote && remote.currentAnimation !== animationToPlay) {
         Object.values(remote.animations).forEach(anim => anim.stop());
@@ -153,41 +142,37 @@ window.handleOtherPlayerShoot = async function(data) {
     bulletMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
     bullet.material = bulletMaterial;
 
-    // Create the bullet direction vector and normalize it.
     const bulletDirection = new BABYLON.Vector3(data.direction.x, data.direction.y, data.direction.z);
 
-    bullet.parent=remote.model;
+    bullet.parent = remote.model;
+    bullet.position = new BABYLON.Vector3(0.1, 1.4, 1);
+    bullet.rotation = new BABYLON.Vector3(0, 0, Math.PI);
 
-    bullet.position=new BABYLON.Vector3(0.1,1.4,1);
-    bullet.rotation=new BABYLON.Vector3(0,0,Math.PI);
-
-    // Detach bullet from remote player's model to move independently.
     bullet.setParent(null);
-    
+
     const bulletPhysics = new BABYLON.PhysicsAggregate(
         bullet,
         BABYLON.PhysicsShapeType.BOX,
         { mass: 0.001 },
         scene
     );
-    
-    bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0)); 
-    bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) });
-    
-    const shootForce = 1;
 
+    bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0));
+    bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) });
+
+    const shootForce = 1;
     bulletPhysics.body.applyImpulse(bulletDirection.scale(shootForce), bullet.position);
-    
+
     bullet.isVisible = true;
 
-    onCollisionStart(bullet,(e)=>{
-        var name=e.collidedAgainst.transformNode.name;
-        if (name!=userid) bullet.dispose();
+    onCollisionStart(bullet, (e) => {
+        var name = e.collidedAgainst.transformNode.name;
+        if (name != userid) bullet.dispose();
     });
 };
 
-window.handleOtherPlayerMovement = function(data) {
-    data.movementData.y-=2;
+window.handleOtherPlayerMovement = function (data) {
+    data.movementData.y -= 2;
 
     const currentTime = Date.now();
     if (currentTime - (remotePlayers[data.id]?.lastUpdateTime || 0) < 100) return;
@@ -253,7 +238,7 @@ function getMovementAnimation(direction) {
     return animationToPlay;
 }
 
-window.handlePlayerDisconnected = function(data) {
+window.handlePlayerDisconnected = function (data) {
     if (remotePlayers[data.id] && remotePlayers[data.id].model) {
         remotePlayers[data.id].model.dispose();
         delete remotePlayers[data.id];
