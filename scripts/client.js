@@ -169,7 +169,7 @@ window.handleOtherPlayerShoot = async function(data) {
 };
 
 window.handleOtherPlayerMovement = function(data) {
-    data.movementData.y-=2;
+    data.movementData.y-=1;
 
     const currentTime = Date.now();
     if (currentTime - (remotePlayers[data.id]?.lastUpdateTime || 0) < 100) return;
