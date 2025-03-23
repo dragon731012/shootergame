@@ -131,7 +131,18 @@ const createScene = async () => {
         { mass: 10, restitution:0 },
         scene
     );
-    playerBody.shape.extents.set(1.5, 3, 1.5);
+
+    const newShapeMesh = BABYLON.MeshBuilder.CreateBox("box", { 
+        width: 1.5,
+        height: 3,
+        depth: 1.5 
+    }, scene);
+    const newShape = new BABYLON.PhysicsShape({ type: BABYLON.PhysicsShapeType.MESH, parameters: { mesh: newShapeMesh } }, scene);
+    newShapeMesh.dispose();
+
+    setTimeout(()=>{
+        playerBody.shape=newShape;
+    },500);
 
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
