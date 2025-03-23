@@ -66,7 +66,7 @@ function createRemotePlayer(playerId, position) {
         .then(result => {
             let remoteModel=result.meshes[0];
             remoteModel.name=playerId;
-            remoteModel.scaling = new BABYLON.Vector3(1.4, 1.3, 1.4);
+            remoteModel.scaling = new BABYLON.Vector3(1.2, 1.1, 1.2);
             let remoteAnimations={};
             result.animationGroups.forEach(ag => {
                 remoteAnimations[ag.name.toLowerCase()] = ag;
