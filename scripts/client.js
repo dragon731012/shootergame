@@ -162,9 +162,9 @@ window.handleOtherPlayerShoot = async function(data) {
 
     onCollisionStart(bullet,(e)=>{
         var name=e.collidedAgainst.transformNode.name;
-        if (name==player) wasShot(remote, data.gun);
+        if (name=="playerhitbox") wasShot(remote, data.gun);
         console.log(name);
-        if (name!=userid) bullet.dispose();
+        if (name!=userid && name!="player") bullet.dispose();
     });
 };
 

@@ -104,6 +104,10 @@ const createScene = async () => {
     player.scaling = new BABYLON.Vector3(4, 4, 4);
     player.isVisible=false;
 
+    playerhitbox = BABYLON.MeshBuilder.CreateBox("player", { size: 1 }, scene);
+    player.scaling = new BABYLON.Vector3(1, 3, 1);
+    player.isVisible=true;
+
     camera.target = player;
 
     gun = await add3d(guns[currentgun].asset);
@@ -250,7 +254,6 @@ const createScene = async () => {
         if (keyMap[" "] && canJump) {
             if (gun) gun.position.y = currentgunpos;
             jump();
-            console.log("jumping");
         }
 
         camera.position.copyFrom(player.position);
