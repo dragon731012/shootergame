@@ -312,9 +312,9 @@ const createScene = async () => {
             }
         }
 
-        var newvelocity=playerBody.body.getAngularVelocity();
-        newvelocity.y=0;
-        playerBody.body.setAngularVelocity(newvelocity);
+        const angularVelocity = myMesh.physicsImpostor.angularVelocity;
+        myMesh.physicsImpostor.setAngularVelocity(new BABYLON.Vector3(0, angularVelocity.y, 0));
+
 
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
             direction = "forward"; 
