@@ -312,9 +312,9 @@ const createScene = async () => {
             }
         }
 
-        var newvelocity=player.getAngularVelocity();
+        var newvelocity=playerBody.getAngularVelocity();
         newvelocity.y=0;
-        player.setAngularVelocity(newvelocity);
+        playerBody.setAngularVelocity(newvelocity);
 
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
             direction = "forward"; 
