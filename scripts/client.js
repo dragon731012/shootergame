@@ -109,7 +109,6 @@ scene.onBeforeRenderObservable.add(() => {
         remote.model.position = BABYLON.Vector3.Lerp(remote.startPosition, remote.targetPosition, t);
     }
 
-    const now = Date.now();
     for (const playerId in remotePlayers) {
         const remote = remotePlayers[playerId];
         if (remote.loading) continue;
