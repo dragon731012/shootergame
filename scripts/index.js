@@ -5,6 +5,7 @@ let scene;
 let camera;
 let player;
 let playerBody;
+let playerhitbox;
 let showbullet;
 let gun;
 let physicsPlugin;
@@ -107,6 +108,13 @@ const createScene = async () => {
     playerhitbox = BABYLON.MeshBuilder.CreateBox("player", { size: 1 }, scene);
     playerhitbox.scaling = new BABYLON.Vector3(1.1, 3.6, 1.1);
     playerhitbox.isVisible=true;
+
+    new BABYLON.PhysicsAggregate(
+        ground,
+        BABYLON.PhysicsShapeType.BOX,
+        { mass: 1 },
+        scene
+    );
 
     camera.target = player;
 
@@ -314,6 +322,9 @@ const createScene = async () => {
                 gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetY, 0.1);
             }
         }
+
+        playerhitbox.setAngularVelocity(0,0,0);
+
 
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
             direction = "forward"; 
