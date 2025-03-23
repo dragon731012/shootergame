@@ -108,6 +108,7 @@ window.handleRecieveDamageEvent = function(data) {
 }
 
 function wasShot(player, gun) {
+    console.log(gun);
     hp-=gun.damage;
     if (hp<=0) alert("you died!");
 }
