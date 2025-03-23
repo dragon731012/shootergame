@@ -101,7 +101,7 @@ const createScene = async () => {
     );
 
     player = BABYLON.MeshBuilder.CreateSphere("player", { size: 1 }, scene);
-    player.scaling = new BABYLON.Vector3(1.5, 1.5, 2);
+    player.scaling = new BABYLON.Vector3(1.2, 4, 1.2);
     player.isVisible=false;
 
     camera.target = player;
