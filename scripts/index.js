@@ -131,6 +131,7 @@ const createScene = async () => {
         { mass: 10, restitution:0 },
         scene
     );
+    playerBody.shape.scaling.set(1.5, 2, 1.5);
 
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
