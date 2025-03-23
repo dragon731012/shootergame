@@ -109,6 +109,10 @@ const createScene = async () => {
     playerhitbox.scaling = new BABYLON.Vector3(1.1, 3.6, 1.1);
     playerhitbox.isVisible=true;
 
+    const playerhitboxm = new BABYLON.StandardMaterial("playerhitboxm", scene);
+    playerhitboxm.diffuseColor = new BABYLON.Color3(0, 0, 1);
+    playerhitbox.material = playerhitboxm;
+
     new BABYLON.PhysicsAggregate(
         ground,
         BABYLON.PhysicsShapeType.BOX,
