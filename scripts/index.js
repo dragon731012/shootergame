@@ -61,7 +61,7 @@ const createScene = async () => {
     physicsPlugin = new BABYLON.HavokPlugin(true, havokInstance);
     scene.enablePhysics(gravityVector, physicsPlugin);
 
-    camera = new BABYLON.ArcRotateCamera(
+    camera = new BABYLON.FreeCamera(
         "camera1",
         -Math.PI / 2,
         Math.PI / 4,
