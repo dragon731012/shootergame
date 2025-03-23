@@ -5,6 +5,7 @@ let scene;
 let camera;
 let player;
 let playerBody;
+let playercamera;
 let showbullet;
 let gun;
 let physicsPlugin;
@@ -104,7 +105,7 @@ const createScene = async () => {
     player.scaling = new BABYLON.Vector3(0.8, 2.1, 0.8);
     player.isVisible=false;
 
-    let playercamera = BABYLON.MeshBuilder.CreateBox("player", { size: 1 }, scene);
+    playercamera = BABYLON.MeshBuilder.CreateBox("player", { size: 1 }, scene);
     playercamera.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
     playercamera.isVisible = false;
     playercamera.parent = player;
