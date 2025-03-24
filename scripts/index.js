@@ -22,6 +22,9 @@ const jumpForce = 80;
 const jumpForceIncrease = 4;
 const gunBob = 40;
 
+const GROUP1 = 1;
+const GROUP2 = 2;
+
 const guns={
     machine_gun:{
         damage:5,
@@ -154,6 +157,11 @@ const createScene = async () => {
         { mass: 10, restitution:0 },
         scene
     );
+
+    playerBody.body.setCollisionGroup(GROUP1);
+
+    physicsPlugin.setCollisionGroupMask(GROUP1, ~GROUP2);
+    physicsPlugin.setCollisionGroupMask(GROUP2, ~GROUP1);
 
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
