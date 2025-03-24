@@ -164,12 +164,12 @@ window.handleOtherPlayerShoot = async function(data) {
     bullet.isVisible = true;
 
     const rayLength = bulletDirection.length();
-    const ray = new BABYLON.Ray(bullet.position, bulletDirection, rayLength);
+    const ray = new BABYLON.Ray(bullet.getAbsolutePosition(), bulletDirection, rayLength);
     
     scene.onBeforeRenderObservable.add(function updateRay() {
-        ray.origin = bullet.position;
+        ray.origin = bullet.getAbsolutePosition();
 
-        const pickInfo = ray.intersectsMesh(targetMesh, true);
+        const pickInfo = ray.intersectsMesh(playerhitbox, true);
         if (pickInfo.hit) {
             console.log(pickInfo);
             scene.onBeforeRenderObservable.remove(updateRay); 
