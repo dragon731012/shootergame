@@ -158,10 +158,8 @@ const createScene = async () => {
         scene
     );
 
-    playerBody.body.collisionGroup = GROUP1; 
-
-    physicsPlugin.setCollisionGroupMask(GROUP1, ~GROUP2);
-    physicsPlugin.setCollisionGroupMask(GROUP2, ~GROUP1);
+    playerBody.body.collisionGroup = GROUP1;
+    playerBody.body.collisionMask = ~GROUP2;
 
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
