@@ -127,9 +127,6 @@ const createScene = async () => {
     );
     playerhitboxbody.body.disablePreStep = false;
 
-    playerhitboxbody.body.collisionGroup = GROUP3;
-    playerhitboxbody.body.collisionMask = GROUP1;
-
     setInterval(()=>{
         playerhitboxbody.body.transformNode.position = new BABYLON.Vector3(player.position.x,player.position.y,player.position.z);
     },1);
@@ -162,8 +159,10 @@ const createScene = async () => {
         scene
     );
 
-    playerBody.body.collisionGroup = GROUP2; 
-    playerBody.body.collisionMask = GROUP2;
+    playerBody.body.executeNativeFunction((world, body) => {
+        body.getBroadphaseProxy().set_m_collisionFilterGroup(GROUP2);  // Player group
+        body.getBroadphaseProxy().set_m_collisionFilterMask(GROUP2);   // What the player collides with
+    });
 
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
