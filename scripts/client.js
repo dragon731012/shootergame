@@ -163,6 +163,13 @@ window.handleOtherPlayerShoot = async function(data) {
     
     bullet.isVisible = true;
 
+    const rayLength = bulletDirection.length();
+    const ray = new BABYLON.Ray(bullet.position, bulletDirection, rayLength);
+    const pickInfo = ray.intersectsMesh(targetMesh, true);
+    if (pickInfo.hit) {
+        console.log(pickInfo);
+    }
+
     onCollisionStart(bullet,(e)=>{
         var name=e.collidedAgainst.transformNode.name;
         if (name=="playerhitbox") wasShot(remote, data.gun);
