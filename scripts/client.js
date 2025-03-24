@@ -165,16 +165,23 @@ window.handleOtherPlayerShoot = async function(data) {
 
     const rayLength = bulletDirection.length();
     const ray = new BABYLON.Ray(bullet.position, bulletDirection, rayLength);
-    const pickInfo = ray.intersectsMesh(targetMesh, true);
-    if (pickInfo.hit) {
-        console.log(pickInfo);
-    }
+    
+    scene.onBeforeRenderObservable.add(function updateRay() {
+        ray.origin = bullet.position;
+
+        const pickInfo = ray.intersectsMesh(targetMesh, true);
+        if (pickInfo.hit) {
+            console.log(pickInfo);
+            scene.onBeforeRenderObservable.remove(updateRay); 
+        }
+    });
+    
 
     onCollisionStart(bullet,(e)=>{
         var name=e.collidedAgainst.transformNode.name;
         if (name=="playerhitbox") wasShot(remote, data.gun);
         console.log(name);
-        if (name!=userid && name!="player") bullet.dispose();
+        //if (name!=userid && name!="player") bullet.dispose();
     });
 };
 
