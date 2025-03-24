@@ -151,6 +151,9 @@ window.handleOtherPlayerShoot = async function(data) {
         scene
     );
 
+    bulletPhysics.body.filterMembershipMask = 0;
+    bulletPhysics.body.filterCollideMask = 0;
+
     bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0)); 
     bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) });
     
