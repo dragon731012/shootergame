@@ -127,6 +127,9 @@ const createScene = async () => {
     );
     playerhitboxbody.body.disablePreStep = false;
 
+    playerhitboxbody.body.collisionGroup = GROUP3;
+    playerhitboxbody.body.collisionMask = GROUP1;
+
     setInterval(()=>{
         playerhitboxbody.body.transformNode.position = new BABYLON.Vector3(player.position.x,player.position.y,player.position.z);
     },1);
@@ -159,8 +162,8 @@ const createScene = async () => {
         scene
     );
 
-    playerBody.body.collisionGroup = 2;
-    playerBody.body.collisionMask = 1;
+    playerBody.body.collisionGroup = GROUP2;  
+    playerBody.body.collisionMask = GROUP1;   
 
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
