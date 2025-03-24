@@ -159,7 +159,7 @@ const createScene = async () => {
         scene
     );
 
-    playerBody.body.executeNativeFunction((world, body) => {
+    player.physicsImposter.executeNativeFunction((world, body) => {
         body.getBroadphaseProxy().set_m_collisionFilterGroup(GROUP2);  // Player group
         body.getBroadphaseProxy().set_m_collisionFilterMask(GROUP2);   // What the player collides with
     });

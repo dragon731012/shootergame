@@ -151,7 +151,7 @@ window.handleOtherPlayerShoot = async function(data) {
         scene
     );
 
-    bulletPhysics.body.executeNativeFunction((world, body) => {
+    bullet.physicsImposter.executeNativeFunction((world, body) => {
         body.getBroadphaseProxy().set_m_collisionFilterGroup(GROUP3); // Bullet group
         body.getBroadphaseProxy().set_m_collisionFilterMask(GROUP1 | GROUP2); // Collides with environment or player
     });
