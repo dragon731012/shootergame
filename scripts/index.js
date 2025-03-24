@@ -158,7 +158,7 @@ const createScene = async () => {
         scene
     );
 
-    playerBody.body.setCollisionGroup(GROUP1);
+    playerBody.body.collisionGroup = GROUP1; 
 
     physicsPlugin.setCollisionGroupMask(GROUP1, ~GROUP2);
     physicsPlugin.setCollisionGroupMask(GROUP2, ~GROUP1);
