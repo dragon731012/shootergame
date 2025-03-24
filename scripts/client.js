@@ -151,10 +151,8 @@ window.handleOtherPlayerShoot = async function(data) {
         scene
     );
 
-    bullet.physicsImposter.executeNativeFunction((world, body) => {
-        body.getBroadphaseProxy().set_m_collisionFilterGroup(GROUP3); // Bullet group
-        body.getBroadphaseProxy().set_m_collisionFilterMask(GROUP1 | GROUP2); // Collides with environment or player
-    });
+    bullet.physicsImpostor.isResting = false; // Disable resting
+    bullet.isPickable = false;
 
     bulletPhysics.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 0)); 
     bulletPhysics.body.setMassProperties({ inertia: new BABYLON.Vector3(0, 0, 0) });
