@@ -24,6 +24,7 @@ const gunBob = 40;
 
 const GROUP1 = 1;
 const GROUP2 = 2;
+const GROUP3 = 4;
 
 const guns={
     machine_gun:{
@@ -158,8 +159,8 @@ const createScene = async () => {
         scene
     );
 
-    playerBody.body.collisionGroup = GROUP1;
-    playerBody.body.collisionMask = ~GROUP2;
+    playerBody.body.collisionGroup = 2;
+    playerBody.body.collisionMask = 1;
 
     async function shoot(){
         Explode(showbullet, 0.01, 0.02);
