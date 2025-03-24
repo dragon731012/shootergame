@@ -5,8 +5,6 @@ let scene;
 let camera;
 let player;
 let playerBody;
-let playerhitbox;
-let playerhitboxbody;
 let showbullet;
 let gun;
 let physicsPlugin;
@@ -21,10 +19,6 @@ const enemySpawnInterval = 2000;
 const jumpForce = 80;
 const jumpForceIncrease = 4;
 const gunBob = 40;
-
-const GROUP1 = 1;
-const GROUP2 = 2;
-const GROUP3 = 4;
 
 const guns={
     machine_gun:{
@@ -110,27 +104,6 @@ const createScene = async () => {
     player.scaling = new BABYLON.Vector3(4, 4, 4);
     player.isVisible=false;
 
-    playerhitbox = BABYLON.MeshBuilder.CreateBox("playerhitbox", { size: 1 }, scene);
-    playerhitbox.scaling = new BABYLON.Vector3(1.1, 2.7, 1.1);
-    playerhitbox.name="playerhitbox";
-    playerhitbox.isVisible=true;
-
-    const playerhitboxm = new BABYLON.StandardMaterial("playerhitboxm", scene);
-    playerhitboxm.diffuseColor = new BABYLON.Color3(0, 0, 1);
-    playerhitbox.material = playerhitboxm;
-
-    playerhitboxbody=new BABYLON.PhysicsAggregate(
-        playerhitbox,
-        BABYLON.PhysicsShapeType.BOX,
-        { mass: 1 },
-        scene
-    );
-    playerhitboxbody.body.disablePreStep = false;
-
-    setInterval(()=>{
-        playerhitboxbody.body.transformNode.position = new BABYLON.Vector3(player.position.x,player.position.y,player.position.z);
-    },1);
-
     camera.target = player;
 
     gun = await add3d(guns[currentgun].asset);
@@ -208,6 +181,7 @@ const createScene = async () => {
 
         onCollisionStart(bullet,(e)=>{
             var name=e.collidedAgainst.transformNode.name;
+            if (remotePlayers[name]) window.network.sendDamageEvent(name,userid,guns[currentgun].damage);
             if (name!="player") bullet.dispose();
         });
     }
@@ -337,9 +311,6 @@ const createScene = async () => {
                 gun.position.y = BABYLON.Scalar.Lerp(gun.position.y, targetY, 0.1);
             }
         }
-
-        playerhitboxbody.body.setAngularVelocity(0,0,0);
-        playerhitbox.rotationQuaternion = BABYLON.Quaternion.Identity();
 
 
         if (keyMap["w"] && !keyMap["s"] && !keyMap["a"] && !keyMap["d"]) {
