@@ -1,4 +1,4 @@
-const socket = io('https://server.addmask.com'); // Replace with your actual server domain
+const socket = io('https://shooterserver.vercel.app'); // Replace with your actual server domain
 let userid;
 
 socket.on('connect', () => {
